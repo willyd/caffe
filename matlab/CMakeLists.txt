@@ -35,10 +35,17 @@ if(build_using MATCHES "Matlab")
   # keep this line as a reminder of the linker problems
   #set(libflags -lcaffe${Caffe_POSTFIX} ${libflags}) # Matlab R2014a complans for -Wl,--whole-archive
 
+  # Handle build with or without GPUArray
+  if(HAVE_MATLAB_GPUARRAY)
+    include_directories(${MATLAB_GPUARRAY_INCLUDE_DIR})
+    add_definitions(-DHAVE_MATLAB_GPUARRAY)
+    set(MATLAB_ADDITIONAL_LIBRARIES ${MATLAB_GPU_LIB})
+  endif()
+
   matlab_add_mex(NAME matlab
                  SRC ${Matlab_srcs} # maybe you need to add some other sources
                  OUTPUT_NAME caffe_ # change the output name to _caffe.mexw64
-                 LINK_TO caffe # cmake will take care of forwarding the correct transitive library dependencies to your mex file
+                 LINK_TO ${MATLAB_ADDITIONAL_LIBRARIES} caffe # cmake will take care of forwarding the correct transitive library dependencies to your mex file
                  )
   # output the target in the source tree as in the original version. 
   set_target_properties(matlab PROPERTIES 

@@ -1470,3 +1470,15 @@ if(Matlab_INCLUDE_DIRS AND Matlab_LIBRARIES)
   )
 endif()
 endif()
+
+if(MATLAB_FOUND)
+  find_path(MATLAB_GPUARRAY_INCLUDE_DIR gpu/mxGPUArray.h 
+            PATHS ${Matlab_ROOT_DIR} 
+            PATH_SUFFIXES "toolbox/distcomp/gpu/extern/include"
+            )
+  get_filename_component(_Matlab_LIBRARY_DIR ${Matlab_MEX_LIBRARY} DIRECTORY)
+  find_library(MATLAB_GPU_LIB gpu PATHS ${_Matlab_LIBRARY_DIR})
+  if(MATLAB_GPUARRAY_INCLUDE_DIR AND MATLAB_GPU_LIB)
+    set(HAVE_MATLAB_GPUARRAY TRUE)
+  endif()
+endif()

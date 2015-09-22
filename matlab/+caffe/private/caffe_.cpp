@@ -14,7 +14,9 @@
 #include <vector>
 
 #include "mex.h"
+#ifdef HAVE_MATLAB_GPUARRAY
 #include "gpu/mxGPUArray.h"
+#endif
 
 #include "caffe/caffe.hpp"
 
@@ -63,15 +65,18 @@ static void mx_mat_to_blob(const mxArray* mx_mat, Blob<float>* blob,
     WhichMemory data_or_diff) {
 
   const float* mat_mem_ptr = NULL;
+#ifdef HAVE_MATLAB_GPUARRAY
   mxGPUArray const *mx_mat_gpu;
-  if (mxIsGPUArray(mx_mat)){
+  if (mxIsGPUArray(mx_mat)) {
 	  mxInitGPU();
 	  mx_mat_gpu = mxGPUCreateFromMxArray(mx_mat);
 	  mat_mem_ptr = reinterpret_cast<const float*>(mxGPUGetDataReadOnly(mx_mat_gpu));
 	  mxCHECK(blob->count() == mxGPUGetNumberOfElements(mx_mat_gpu),
 		  "number of elements in target blob doesn't match that in input mxArray");
-  }
-  else{
+  }  
+  else
+#endif    
+  {
 	  mxCHECK(blob->count() == mxGetNumberOfElements(mx_mat),
 		  "number of elements in target blob doesn't match that in input mxArray");
 	  mat_mem_ptr = reinterpret_cast<const float*>(mxGetData(mx_mat));
@@ -91,9 +96,11 @@ static void mx_mat_to_blob(const mxArray* mx_mat, Blob<float>* blob,
   }
   caffe_copy(blob->count(), mat_mem_ptr, blob_mem_ptr);
 
+#ifdef HAVE_MATLAB_GPUARRAY
   if (mxIsGPUArray(mx_mat)){
 	  mxGPUDestroyGPUArray(mx_mat_gpu);
   }
+#endif
 }
 
 // Copy Blob data or diff to matlab array
@@ -475,8 +482,11 @@ static void blob_get_data(MEX_ARGS) {
 
 // Usage: caffe_('blob_set_data', hBlob, new_data)
 static void blob_set_data(MEX_ARGS) {
-  mxCHECK(nrhs == 2 && mxIsStruct(prhs[0]) && (mxIsSingle(prhs[1]) || mxIsGPUArray(prhs[1])),
-      "Usage: caffe_('blob_set_data', hBlob, new_data)");
+  mxCHECK(nrhs == 2 && mxIsStruct(prhs[0]) && (mxIsSingle(prhs[1])
+#ifdef HAVE_MATLAB_GPUARRAY    
+    || mxIsGPUArray(prhs[1])
+#endif
+  ), "Usage: caffe_('blob_set_data', hBlob, new_data)");
   Blob<float>* blob = handle_to_ptr<Blob<float> >(prhs[0]);
   mx_mat_to_blob(prhs[1], blob, DATA);
 }
@@ -553,46 +563,6 @@ static void set_random_seed(MEX_ARGS) {
 		"Usage: caffe_('set_random_seed', random_seed)");
 	int random_seed = static_cast<unsigned int>(mxGetScalar(prhs[0]));
 	Caffe::set_random_seed(random_seed);
-}
-
-static void glog_failure_handler(){
-	static bool is_glog_failure = false;
-	if (!is_glog_failure)
-	{
-		is_glog_failure = true;
-		::google::FlushLogFiles(0);
-		mexErrMsgTxt("glog check error, please check log and clear mex");
-	}
-}
-
-static void protobuf_log_handler(::google::protobuf::LogLevel level, const char* filename, int line,
-	const std::string& message)
-{
-	const int max_err_length = 512;
-	char err_message[max_err_length];
-	snprintf(err_message, max_err_length, "Protobuf : %s . at %s Line %d",
-           message.c_str(), filename, line);
-	LOG(INFO) << err_message;
-	::google::FlushLogFiles(0);
-	mexErrMsgTxt(err_message);
-}
-
-// Usage: caffe_('init_log', log_base_filename)
-static void init_log(MEX_ARGS) {
-	static bool is_log_inited = false;
-
-	mxCHECK(nrhs == 1 && mxIsChar(prhs[0]),
-		"Usage: caffe_('init_log', log_dir)");
-	if (is_log_inited)
-		::google::ShutdownGoogleLogging();
-	char* log_base_filename = mxArrayToString(prhs[0]);
-	::google::SetLogDestination(0, log_base_filename);
-	mxFree(log_base_filename);
-	::google::protobuf::SetLogHandler(&protobuf_log_handler);
-	::google::InitGoogleLogging("caffe_mex");
-	::google::InstallFailureFunction(&glog_failure_handler);
-
-	is_log_inited = true;
 }
 
 // Usage: caffe_('read_mean', mean_proto_file)
