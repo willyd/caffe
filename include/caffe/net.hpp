@@ -31,6 +31,10 @@ class Net {
   /// @brief Initialize a network with a NetParameter.
   void Init(const NetParameter& param);
 
+  /// @brief set phase
+  ///        enable train and test with one network, for saving memory
+  void SetPhase(Phase phase);
+
   /**
    * @brief Run Forward with the input Blob%s already fed separately.
    *
@@ -148,6 +152,13 @@ class Net {
    */
   inline const vector<vector<Blob<Dtype>*> >& top_vecs() const {
     return top_vecs_;
+  }
+
+  inline const vector<vector<int> >& bottom_id_vecs() const {
+	  return bottom_id_vecs_;
+  }
+  inline const vector<vector<int> >& top_id_vecs() const {
+	  return top_id_vecs_;
   }
   inline const vector<vector<bool> >& bottom_need_backward() const {
     return bottom_need_backward_;
