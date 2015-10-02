@@ -131,6 +131,10 @@ void Net_SetInputArrays(Net<Dtype>* net, bp::object data_obj,
       PyArray_DIMS(data_arr)[0]);
 }
 
+void Net_SetPhase(Net<Dtype>& net, int phase) {
+  net.SetPhase(static_cast<Phase>(phase));
+}
+
 Solver<Dtype>* GetSolverFromFile(const string& filename) {
   SolverParameter param;
   ReadProtoFromTextFileOrDie(filename, &param);
@@ -246,7 +250,8 @@ BOOST_PYTHON_MODULE(_caffe) {
         bp::return_value_policy<bp::copy_const_reference>()))
     .def("_set_input_arrays", &Net_SetInputArrays,
         bp::with_custodian_and_ward<1, 2, bp::with_custodian_and_ward<1, 3> >())
-    .def("save", &Net_Save);
+    .def("save", &Net_Save)
+    .def("set_phase", &Net_SetPhase);
 
   bp::class_<Blob<Dtype>, shared_ptr<Blob<Dtype> >, boost::noncopyable>(
     "Blob", bp::no_init)
