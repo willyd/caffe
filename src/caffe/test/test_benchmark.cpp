@@ -1,20 +1,4 @@
-#ifndef _MSC_VER
-#include <unistd.h>  // for usleep
-#else
-#include "caffe/util/msvc.hpp"
-static inline void usleep(__int64 usec) {
-    HANDLE timer;
-    LARGE_INTEGER ft;
-
-    // Convert to 100 nanosecond interval
-    // negative value indicates relative time
-    ft.QuadPart = -(10 * usec);
-    timer = CreateWaitableTimer(NULL, TRUE, NULL);
-    SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
-    WaitForSingleObject(timer, INFINITE);
-    CloseHandle(timer);
-}
-#endif
+#include <boost/thread.hpp>
 
 #include "gtest/gtest.h"
 
@@ -80,7 +64,7 @@ TYPED_TEST(BenchmarkTest, TestTimerMilliSeconds) {
   EXPECT_FALSE(timer.running());
   EXPECT_FALSE(timer.has_run_at_least_once());
   timer.Start();
-  usleep(300 * 1000);
+  boost::this_thread::sleep(boost::posix_time::milliseconds(300));
   EXPECT_GE(timer.MilliSeconds(), 300 - kMillisecondsThreshold);
   EXPECT_LE(timer.MilliSeconds(), 300 + kMillisecondsThreshold);
   EXPECT_TRUE(timer.initted());
@@ -95,7 +79,7 @@ TYPED_TEST(BenchmarkTest, TestTimerSeconds) {
   EXPECT_FALSE(timer.running());
   EXPECT_FALSE(timer.has_run_at_least_once());
   timer.Start();
-  usleep(300 * 1000);
+  boost::this_thread::sleep(boost::posix_time::milliseconds(300));
   EXPECT_GE(timer.Seconds(), 0.3 - kMillisecondsThreshold / 1000.);
   EXPECT_LE(timer.Seconds(), 0.3 + kMillisecondsThreshold / 1000.);
   EXPECT_TRUE(timer.initted());

@@ -7,7 +7,7 @@ if(MSVC)
     # Disable automatic linking 
     add_definitions(-DBOOST_ALL_NO_LIB)    
 endif()
-find_package(Boost 1.46 REQUIRED COMPONENTS system thread)
+find_package(Boost 1.46 REQUIRED COMPONENTS system thread filesystem)
 include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 list(APPEND Caffe_LINKER_LIBS ${Boost_LIBRARIES})
 
@@ -39,6 +39,9 @@ if(USE_LMDB)
   include_directories(SYSTEM ${LMDB_INCLUDE_DIR})
   list(APPEND Caffe_LINKER_LIBS ${LMDB_LIBRARIES})
   add_definitions(-DUSE_LMDB)
+  if(ALLOW_LMDB_NOLOCK)
+    add_definitions(-DALLOW_LMDB_NOLOCK)
+  endif()
 endif()
 
 # ---[ LevelDB
@@ -60,9 +63,9 @@ endif()
 include(cmake/Cuda.cmake)
 if(NOT HAVE_CUDA)
   if(CPU_ONLY)
-    message("-- CUDA is disabled. Building without it...")
+    message(STATUS "-- CUDA is disabled. Building without it...")
   else()
-    message("-- CUDA is not detected by cmake. Building without it...")
+    message(WARNING "-- CUDA is not detected by cmake. Building without it...")
   endif()
 
   # TODO: remove this not cross platform define in future. Use caffe_config.h instead.

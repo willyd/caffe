@@ -1,84 +1,52 @@
 #ifndef CAFFE_UTIL_IO_H_
 #define CAFFE_UTIL_IO_H_
 
-#include <unistd.h>
+#include <boost/filesystem.hpp>
+#include <iomanip>
+#include <iostream>  // NOLINT(readability/streams)
 #include <string>
-
-
 
 #include "google/protobuf/message.h"
 
-#include "caffe/blob.hpp"
 #include "caffe/common.hpp"
 #include "caffe/proto/caffe.pb.h"
-#include "caffe/util/msvc.hpp"
+#include "caffe/util/format.hpp"
+
+#ifndef CAFFE_TMP_DIR_RETRIES
+#define CAFFE_TMP_DIR_RETRIES 100
+#endif
 
 namespace caffe {
 
 using ::google::protobuf::Message;
-
-
-
-inline void MakeTempFilename(string* temp_filename) {
-  temp_filename->clear();
-#ifndef _MSC_VER
-  *temp_filename = "/tmp/caffe_test.XXXXXX";
-  char* temp_filename_cstr = new char[temp_filename->size() + 1];
-  // NOLINT_NEXT_LINE(runtime/printf)
-  strcpy(temp_filename_cstr, temp_filename->c_str());
-  int fd = mkstemp(temp_filename_cstr);
-  CHECK_GE(fd, 0) << "Failed to open a temporary file at: " << *temp_filename;
-  close(fd);
-  *temp_filename = temp_filename_cstr;
-  delete[] temp_filename_cstr;
-#else
-  // has per gtest
-  char temp_dir_path[MAX_PATH + 1] = { '\0' };  // NOLINT
-  char temp_file_path[MAX_PATH + 1] = { '\0' };  // NOLINT
-
-  ::GetTempPathA(sizeof(temp_dir_path), temp_dir_path);
-  const UINT success = ::GetTempFileNameA(temp_dir_path,
-      "caffe_test",
-      0,  // Generate unique file name.
-      temp_file_path);
-  CHECK_NE(success, 0) << "Unable to create a temporary file in "
-                      << temp_dir_path;
-  *temp_filename = temp_file_path;
-#endif
-}
+using ::boost::filesystem::path;
 
 inline void MakeTempDir(string* temp_dirname) {
   temp_dirname->clear();
-#ifndef _MSC_VER
-  *temp_dirname = "/tmp/caffe_test.XXXXXX";
-  char* temp_dirname_cstr = new char[temp_dirname->size() + 1];
-  // NOLINT_NEXT_LINE(runtime/printf)
-  strcpy(temp_dirname_cstr, temp_dirname->c_str());
-  char* mkdtemp_result = mkdtemp(temp_dirname_cstr);
-  CHECK(mkdtemp_result != NULL)
-      << "Failed to create a temporary directory at: " << *temp_dirname;
-  *temp_dirname = temp_dirname_cstr;
-  delete[] temp_dirname_cstr;
-#else
-  // has per gtest
-  char base_temp_dir_path[MAX_PATH + 1] = { '\0' };  // NOLINT
-  char temp_dir_path[MAX_PATH + 1] = { '\0' };  // NOLINT
+  const path& model =
+    boost::filesystem::temp_directory_path()/"caffe_test.%%%%-%%%%";
+  for ( int i = 0; i < CAFFE_TMP_DIR_RETRIES; i++ ) {
+    const path& dir = boost::filesystem::unique_path(model).string();
+    bool done = boost::filesystem::create_directory(dir);
+    if ( done ) {
+      *temp_dirname = dir.string();
+      return;
+    }
+  }
+  LOG(FATAL) << "Failed to create a temporary directory.";
+}
 
-  ::GetTempPathA(sizeof(base_temp_dir_path), base_temp_dir_path);
-  // there is not GetTempDirectory in windows so fallback on mktemp
-  strcat_s(temp_dir_path, sizeof(temp_dir_path), base_temp_dir_path);
-  strcat_s(temp_dir_path, sizeof(temp_dir_path), "\\caffe_test.XXXXXX");
-
-  errno_t success = _mktemp_s(temp_dir_path, sizeof(temp_dir_path));
-  CHECK_EQ(success, 0) << "Unable to create a temporary directory in "
-      << temp_dir_path;
-
-  BOOL directory_created = ::CreateDirectory(temp_dir_path, NULL);
-  CHECK(directory_created) << "Unable to create a temporary directory in "
-      << temp_dir_path;
-
-  *temp_dirname = temp_dir_path;
-#endif
+inline void MakeTempFilename(string* temp_filename) {
+  static path temp_files_subpath;
+  static uint64_t next_temp_file = 0;
+  temp_filename->clear();
+  if ( temp_files_subpath.empty() ) {
+    string path_string="";
+    MakeTempDir(&path_string);
+    temp_files_subpath = path_string;
+  }
+  *temp_filename =
+    (temp_files_subpath/caffe::format_int(next_temp_file++, 9)).string();
 }
 
 bool ReadProtoFromTextFile(const char* filename, Message* proto);
