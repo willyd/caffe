@@ -8,6 +8,8 @@
 
 #include <string>
 
+#include "caffe/util/io.hpp"
+
 namespace caffe { namespace db {
 
 const size_t LMDB_MAP_SIZE = 1099511627776;  // 1 TB
@@ -16,7 +18,7 @@ void LMDB::Open(const string& source, Mode mode) {
   MDB_CHECK(mdb_env_create(&mdb_env_));
   MDB_CHECK(mdb_env_set_mapsize(mdb_env_, LMDB_MAP_SIZE));
   if (mode == NEW) {
-    CHECK_EQ(mkdir(source.c_str(), 0744), 0) << "mkdir " << source << "failed";
+    CHECK(MakeDir(source.c_str(), 0744)) << "MakeDir " << source << "failed";
   }
   int flags = 0;
   if (mode == READ) {
