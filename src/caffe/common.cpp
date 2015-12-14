@@ -8,7 +8,6 @@
 #endif
 
 #include "caffe/common.hpp"
-#include "caffe/util/msvc.hpp"
 #include "caffe/util/rng.hpp"
 
 namespace caffe {
