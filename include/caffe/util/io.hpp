@@ -77,7 +77,7 @@ inline void MakeTempDir(string* temp_dirname) {
   CHECK_EQ(success, 0) << "Unable to create a temporary directory in "
       << temp_dir_path;
 
-  BOOL directory_created = ::CreateDirectory(temp_dir_path, NULL);
+  BOOL directory_created = ::CreateDirectoryA(temp_dir_path, NULL);
   CHECK(directory_created) << "Unable to create a temporary directory in "
       << temp_dir_path;
 
