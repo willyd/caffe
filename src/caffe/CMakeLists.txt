@@ -24,6 +24,14 @@ set_target_properties(caffe PROPERTIES
     VERSION   ${CAFFE_TARGET_VERSION}
     SOVERSION ${CAFFE_TARGET_SOVERSION}
     )
+if(MSVC)
+  # CMake 3.4 introduced a WINDOWS_EXPORT_ALL_SYMBOLS target property that makes it possible to 
+  # build shared libraries without using the usual declspec() decoration.
+  # See: https://blog.kitware.com/create-dlls-on-windows-without-declspec-using-new-cmake-export-all-feature/
+  # and https://cmake.org/cmake/help/v3.5/prop_tgt/WINDOWS_EXPORT_ALL_SYMBOLS.html
+  # for details.
+  set_target_properties(caffe PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+endif()   
 
 # ---[ Tests
  add_subdirectory(test)

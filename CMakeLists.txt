@@ -14,6 +14,10 @@ set(CAFFE_TARGET_VERSION "1.0.0-rc3")
 set(CAFFE_TARGET_SOVERSION "1.0.0-rc3")
 add_definitions(-DCAFFE_VERSION=${CAFFE_TARGET_VERSION})
 
+# ---[ Download or resolve the provided dependencies folder
+include(cmake/WindowsUtils.cmake)
+windows_resolve_dependencies()
+
 # ---[ Using cmake scripts and modules
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
 
@@ -28,7 +32,7 @@ include(cmake/ConfigGen.cmake)
 # ---[ Options
 caffe_option(CPU_ONLY  "Build Caffe without CUDA support" OFF) # TODO: rename to USE_CUDA
 caffe_option(USE_CUDNN "Build Caffe with cuDNN library support" ON IF NOT CPU_ONLY)
-caffe_option(BUILD_SHARED_LIBS "Build shared libraries" ON IF NOT MSVC)
+caffe_option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 caffe_option(BUILD_python "Build Python wrapper" ON)
 set(python_version "2" CACHE STRING "Specify which Python version to use")
 caffe_option(BUILD_matlab "Build Matlab wrapper" OFF IF UNIX OR APPLE)
@@ -38,6 +42,11 @@ caffe_option(USE_OPENCV "Build with OpenCV support" ON)
 caffe_option(USE_LEVELDB "Build with levelDB" ON)
 caffe_option(USE_LMDB "Build with lmdb" ON)
 caffe_option(ALLOW_LMDB_NOLOCK "Allow MDB_NOLOCK when reading LMDB files (only if necessary)" OFF)
+
+
+if(MSVC AND BUILD_SHARED_LIBS AND CMAKE_VERSION VERSION_LESS 3.4)
+  message(FATAL_ERROR "CMake 3.4 or newer is required to build a shared library with Microsoft Visual Studio")
+endif()
 
 # ---[ Dependencies
 include(cmake/Dependencies.cmake)

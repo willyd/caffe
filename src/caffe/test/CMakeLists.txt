@@ -34,3 +34,7 @@ caffe_set_runtime_directory(${the_target} "${PROJECT_BINARY_DIR}/test")
 # ---[ Adding runtest
 add_custom_target(runtest COMMAND ${the_target} ${test_args}
                           WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+
+# ---[ Adding post build command to copy all the required dlls
+# so that the tests will run. (MSVC only)
+target_copy_dependencies(${the_target})
