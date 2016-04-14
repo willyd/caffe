@@ -11,8 +11,9 @@ foreach(source ${srcs})
   endif()
 
   # target
-  add_executable(${name} ${source})
+  add_executable(${name} ${source})  
   target_link_libraries(${name} ${Caffe_LINK})
+  target_copy_dependencies(${name})
   caffe_default_properties(${name})
 
   # set back RUNTIME_OUTPUT_DIRECTORY
