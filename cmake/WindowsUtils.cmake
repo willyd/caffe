@@ -27,6 +27,7 @@ macro(windows_resolve_dependencies)
         if(EXISTS ${CAFFE_DEPENDENCIES_DIR})
             # check that the directory is not empty
             file(GLOB_RECURSE __dependencies_dir_content LIST_DIRECTORIES FALSE ${CAFFE_DEPENDENCIES_DIR}/*.*)
+            list(LENGTH __dependencies_dir_content _n_files)
             if(_n_files GREATER 0)
                 set(__download_dependencies FALSE)
             endif()
