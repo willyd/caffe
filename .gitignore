@@ -94,6 +94,11 @@ LOG*
 CURRENT
 MANIFEST-*
 
+# temporary directories
+jobs
+temp
+examples/*/*lmdb
+
 #Visual Studio files
 *.user
 *.suo
