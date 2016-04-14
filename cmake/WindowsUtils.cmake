@@ -11,7 +11,7 @@ macro(windows_resolve_dependencies)
         # Initialize the download url from the environment variable of default value
         set(__dependencies_url "$ENV{CAFFE_DEPENDENCIES_URL}")
         if(NOT __dependencies_url)
-            set(__dependencies_url "https://ci.appveyor.com/api/buildjobs/to54qj31x9q0qkbc/artifacts/build/install/super-builder-libraries.zip")            
+            set(__dependencies_url "https://ci.appveyor.com/api/buildjobs/5hsad4lflemkbrt9/artifacts/build/install/super-builder-libraries.zip")            
         endif()
         
         # initialize the dependencies download directory
