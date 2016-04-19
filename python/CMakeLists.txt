@@ -12,6 +12,7 @@ set_target_properties(pycaffe PROPERTIES PREFIX "" OUTPUT_NAME "_caffe")
 if(MSVC)
   set_target_properties(pycaffe PROPERTIES SUFFIX ".pyd")
 endif()
+target_copy_dependencies(pycaffe DESTINATION ${PROJECT_SOURCE_DIR}/python/caffe)
 caffe_default_properties(pycaffe)
 
 if(UNIX OR APPLE)

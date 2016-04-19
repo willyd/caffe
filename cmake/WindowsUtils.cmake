@@ -11,17 +11,17 @@ macro(windows_resolve_dependencies)
         # Initialize the download url from the environment variable of default value
         set(__dependencies_url "$ENV{CAFFE_DEPENDENCIES_URL}")
         if(NOT __dependencies_url)
-            set(__dependencies_url "https://ci.appveyor.com/api/buildjobs/5hsad4lflemkbrt9/artifacts/build/install/super-builder-libraries.zip")            
+            set(__dependencies_url "https://ci.appveyor.com/api/buildjobs/5hsad4lflemkbrt9/artifacts/build/install/super-builder-libraries.zip")
         endif()
-        
+
         # initialize the dependencies download directory
         set(CAFFE_DEPENDENCIES_URL ${__dependencies_url} CACHE STRING "The URL to download the prebuilt dependencies for Caffe")
         file(TO_CMAKE_PATH "$ENV{CAFFE_DEPENDENCIES_DIR}" __dependencies_dir)
         if(NOT __dependencies_dir)
-            set(__dependencies_dir "${CMAKE_CURRENT_BINARY_DIR}/dependencies")            
+            set(__dependencies_dir "${CMAKE_CURRENT_BINARY_DIR}/dependencies")
         endif()
         set(CAFFE_DEPENDENCIES_DIR "${__dependencies_dir}" CACHE PATH "The directory where one can find the precompiled dependencies")
-        
+
         # Determine if we need to download dependencies
         set(__download_dependencies TRUE)
         if(EXISTS ${CAFFE_DEPENDENCIES_DIR})
@@ -33,7 +33,7 @@ macro(windows_resolve_dependencies)
             endif()
         endif()
         if(__download_dependencies)
-            windows_download_dependencies(${CAFFE_DEPENDENCIES_URL} ${CAFFE_DEPENDENCIES_DIR})               
+            windows_download_dependencies(${CAFFE_DEPENDENCIES_URL} ${CAFFE_DEPENDENCIES_DIR})
         endif()
         # include the cache file to use the right find modules
         include("${CAFFE_DEPENDENCIES_DIR}/InitialCache.cmake")
@@ -50,21 +50,21 @@ function(windows_download_dependencies url destination)
     set(__dependencies_archive "${__download_dir}/dependencies.zip")
     set(__dependencies_download_stamp "${CMAKE_CURRENT_BINARY_DIR}/dependencies_download.stamp")
     set(__dependencies_extract_stamp "${CMAKE_CURRENT_BINARY_DIR}/dependencies_extract.stamp")
-    
-    if(NOT EXISTS ${__dependencies_download_stamp})    
+
+    if(NOT EXISTS ${__dependencies_download_stamp})
         message(STATUS "Downloading dependencies archive...")
-        # download and extract dependencies to  CAFFE_DEPENDENCIES_DIR            
+        # download and extract dependencies to  CAFFE_DEPENDENCIES_DIR
         file(MAKE_DIRECTORY ${__download_dir})
-        # todo expected hash EXPECTED_HASH SHA1=...    
+        # todo expected hash EXPECTED_HASH SHA1=...
         file(DOWNLOAD "${url}" "${__dependencies_archive}" SHOW_PROGRESS STATUS _download_success)
     else()
-        set(_download_success 0)                
+        set(_download_success 0)
     endif()
     if(_download_success EQUAL 0)
         # create a stamp file for the download
         execute_process(COMMAND ${CMAKE_COMMAND} -E touch ${__dependencies_download_stamp})
-        
-        if(NOT EXISTS ${__dependencies_extract_stamp})                
+
+        if(NOT EXISTS ${__dependencies_extract_stamp})
             message(STATUS "Extracting dependencies archive...")
             file(MAKE_DIRECTORY ${__extract_dir})
             execute_process(COMMAND ${CMAKE_COMMAND} -E tar xf "${__dependencies_archive}"
@@ -77,12 +77,12 @@ function(windows_download_dependencies url destination)
             else()
                 file(REMOVE_RECURSE ${__extract_dir})
                 message(FATAL_ERROR "Failed to extract: ${__dependencies_archive}")
-            endif()                        
+            endif()
         endif()
     else()
         file(REMOVE_RECURSE ${__download_dir})
         message(FATAL_ERROR "Failed to download: ${url}")
-    endif()    
+    endif()
 endfunction()
 
 set(_target_copy_dependencies_file "${CMAKE_CURRENT_LIST_FILE}")
@@ -92,7 +92,15 @@ set(_target_copy_dependencies_file "${CMAKE_CURRENT_LIST_FILE}")
 # shared library dependencies (.dll on Windows) inside its output folder
 # Usage:
 #   target_copy_dependencies(target_name)
-function(target_copy_dependencies target)	
+include(CMakeParseArguments)
+function(target_copy_dependencies target)
+    set(options)
+    set(oneValueArgs
+	DESTINATION
+	)
+    set(multiValueArgs "")
+    cmake_parse_arguments(tcd "${options}" "${oneValueArgs}"
+                          "${multiValueArgs}" ${ARGN})
     if(MSVC)
 		unset(_target_dirs)
 		# get the output directory the libraries this target links to
@@ -114,6 +122,7 @@ function(target_copy_dependencies target)
                             -DTARGET_PATH=$<TARGET_FILE:${target}>
                             -DTARGET_DIRS="${_target_dirs}"
                             -DCAFFE_DEPENDENCIES_DIR=${CAFFE_DEPENDENCIES_DIR}
+                            -DDESTINATION="${tcd_DESTINATION}"
                             -P ${_target_copy_dependencies_file}
                             )
     endif()
@@ -128,17 +137,125 @@ function(glob_dependencies_directories _root_dir out_var)
     file(GLOB_RECURSE _paths "${_root_dir}/*.dll")
 	unset(_dirs)
     foreach(_path ${_paths})
-		get_filename_component(_dir ${_path} DIRECTORY)		
+		get_filename_component(_dir ${_path} DIRECTORY)
 		list(APPEND _dirs ${_dir})
-	endforeach()	
+	endforeach()
 	list(REMOVE_DUPLICATES _dirs)
     set(${out_var} ${_dirs} PARENT_SCOPE)
 endfunction()
 
-if(CMAKE_SCRIPT_MODE_FILE)   
-	glob_dependencies_directories(${CAFFE_DEPENDENCIES_DIR} _dirs)
-	list(APPEND _dirs ${TARGET_DIRS})
-    include(BundleUtilities)
-    include(GetPrerequisites)
-    fixup_bundle("${TARGET_PATH}" "" "${_dirs}")   
+function(find_dumpbin var)
+    # MSVC_VERSION =
+    # 1200 = VS  6.0
+    # 1300 = VS  7.0
+    # 1310 = VS  7.1
+    # 1400 = VS  8.0
+    # 1500 = VS  9.0
+    # 1600 = VS 10.0
+    # 1700 = VS 11.0
+    # 1800 = VS 12.0
+    # 1900 = VS 14.0
+    set(MSVC_PRODUCT_VERSION_1200 6.0)
+    set(MSVC_PRODUCT_VERSION_1300 7.0)
+    set(MSVC_PRODUCT_VERSION_1310 7.1)
+    set(MSVC_PRODUCT_VERSION_1400 8.0)
+    set(MSVC_PRODUCT_VERSION_1500 9.0)
+    set(MSVC_PRODUCT_VERSION_1600 10.0)
+    set(MSVC_PRODUCT_VERSION_1700 11.0)
+    set(MSVC_PRODUCT_VERSION_1800 12.0)
+    set(MSVC_PRODUCT_VERSION_1900 14.0)
+    get_filename_component(MSVC_VC_DIR [HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\${MSVC_PRODUCT_VERSION_${MSVC_VERSION}}\\Setup\\VC;ProductDir] REALPATH CACHE)
+
+    find_program(DUMPBIN_EXECUTABLE dumpbin ${MSVC_VC_DIR}/bin)
+    if(NOT DUMPBIN_EXECUTABLE)
+        message(FATAL_ERROR "Could not find DUMPBIN_EXECUTABLE please define this variable")
+    endif()
+    set(${var} ${DUMPBIN_EXECUTABLE} PARENT_SCOPE)
+endfunction()
+
+function(is_system_library lib var)    
+    string(TOLOWER "$ENV{SystemRoot}" sysroot)
+    file(TO_CMAKE_PATH "${sysroot}" sysroot)
+
+    string(TOLOWER "$ENV{windir}" windir)
+    file(TO_CMAKE_PATH "${windir}" windir)
+
+    string(TOLOWER "${lib}" _lower)
+
+    if(_lower MATCHES "^(api-ms-win-|${sysroot}/sys(tem|wow)|${windir}/sys(tem|wow)|(.*/)*msvc[^/]+dll)")
+        set(${var} TRUE  PARENT_SCOPE)
+    else()
+        set(${var} FALSE PARENT_SCOPE)    
+    endif()
+endfunction()
+
+function(list_dependencies target var)
+    find_dumpbin(dumpbin)
+    execute_process(COMMAND ${dumpbin} /dependents ${target}
+                    RESULT_VARIABLE _result
+                    OUTPUT_VARIABLE _output
+                    ERROR_VARIABLE _error
+    )
+    if(NOT _result EQUAL 0)
+        message(FATAL_ERROR "dumpbin failed on ${target}")
+    endif()
+    string(REPLACE "\n" ";" _output_list "${_output}")
+    set(gp_regex "^    ([^ ].*[Dd][Ll][Ll])$")
+    unset(_dependencies)
+    foreach(_output_line ${_output_list})
+        if(${_output_line} MATCHES ${gp_regex})
+            if(NOT "${CMAKE_MATCH_1}" STREQUAL "${target}")
+                list(APPEND _dependencies ${CMAKE_MATCH_1})
+            endif()
+        endif()
+    endforeach()    
+    set(${var} ${_dependencies} PARENT_SCOPE)
+endfunction()
+
+function(internal_resolve_dependencies target dirs var)    
+    list_dependencies("${target}" _dependencies)
+    foreach(_dep ${_dependencies})
+        unset(is_sytem)
+        find_file(${_dep}_file ${_dep} PATHS ${dirs} NO_DEFAULT_PATH)
+        if(${_dep}_file)
+
+            is_system_library(${${_dep}_file} ${_dep}_is_system)
+
+            if(NOT ${_dep}_is_system)
+                list(APPEND _found_dependencies ${${_dep}_file})
+                internal_resolve_dependencies(${${_dep}_file} "${dirs}" ${_dep}_dependencies_var)
+                list(REMOVE_DUPLICATES ${_dep}_dependencies_var)
+                list(APPEND _found_dependencies ${${_dep}_dependencies_var})
+                list(REMOVE_DUPLICATES _found_dependencies)
+            endif()
+        else()
+            #message(STATUS "Could not find ${_dep}")
+        endif()
+    endforeach()
+    set(${var} ${_found_dependencies} PARENT_SCOPE)
+    
+endfunction()
+
+function(resolve_dependencies target dirs var)
+    internal_resolve_dependencies(${target} "${dirs}" _found_dependencies)
+    set(${var} ${_found_dependencies} PARENT_SCOPE)
+endfunction()
+
+function(copy_resolved_depencies target dependencies destination)
+    if(NOT destination)
+        get_filename_component(destination ${target} DIRECTORY)
+    endif()
+    message(STATUS "Copying resolved dependencies for ${target} to ${destination}...")
+    file(COPY ${dependencies} DESTINATION ${destination})
+endfunction()
+
+if(CMAKE_SCRIPT_MODE_FILE)
+    # use custom script instead of BundleUtilities
+    # because they require an executable and the target provided
+    # could be a dll
+    message(STATUS "Resolving dependencies for ${TARGET_PATH}...")    
+    glob_dependencies_directories(${CAFFE_DEPENDENCIES_DIR} _dirs)
+    list(APPEND _dirs ${TARGET_DIRS})
+    resolve_dependencies("${TARGET_PATH}" "${_dirs}" _dependencies)    
+    copy_resolved_depencies("${TARGET_PATH}" "${_dependencies}" "${DESTINATION}")
 endif()
