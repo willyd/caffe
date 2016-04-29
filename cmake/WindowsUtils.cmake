@@ -119,10 +119,12 @@ function(target_copy_dependencies target)
 		# TODO add escaping for list
         add_custom_command( TARGET ${target} POST_BUILD
                             COMMAND ${CMAKE_COMMAND}
+                            -DMSVC_VERSION=${MSVC_VERSION}
                             -DTARGET_PATH=$<TARGET_FILE:${target}>
                             -DTARGET_DIRS="${_target_dirs}"
                             -DCAFFE_DEPENDENCIES_DIR=${CAFFE_DEPENDENCIES_DIR}
                             -DDESTINATION="${tcd_DESTINATION}"
+                            -DCMAKE_CURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}
                             -P ${_target_copy_dependencies_file}
                             )
     endif()
@@ -241,12 +243,16 @@ function(resolve_dependencies target dirs var)
     set(${var} ${_found_dependencies} PARENT_SCOPE)
 endfunction()
 
-function(copy_resolved_depencies target dependencies destination)
+function(copy_resolved_dependencies target dependencies destination)
     if(NOT destination)
         get_filename_component(destination ${target} DIRECTORY)
     endif()
     message(STATUS "Copying resolved dependencies for ${target} to ${destination}...")
-    file(COPY ${dependencies} DESTINATION ${destination})
+    # lock a file to prevent concurrent copies
+    set(_lock_file ${destination}/copy_resolved_dependencies.lock) 
+    file(LOCK ${_lock_file})         
+    file(COPY ${dependencies} DESTINATION ${destination})    
+    file(LOCK ${_lock_file} RELEASE)
 endfunction()
 
 if(CMAKE_SCRIPT_MODE_FILE)
@@ -257,5 +263,5 @@ if(CMAKE_SCRIPT_MODE_FILE)
     glob_dependencies_directories(${CAFFE_DEPENDENCIES_DIR} _dirs)
     list(APPEND _dirs ${TARGET_DIRS})
     resolve_dependencies("${TARGET_PATH}" "${_dirs}" _dependencies)    
-    copy_resolved_depencies("${TARGET_PATH}" "${_dependencies}" "${DESTINATION}")
+    copy_resolved_dependencies("${TARGET_PATH}" "${_dependencies}" "${DESTINATION}")
 endif()

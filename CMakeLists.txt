@@ -28,6 +28,7 @@ include(cmake/Targets.cmake)
 include(cmake/Misc.cmake)
 include(cmake/Summary.cmake)
 include(cmake/ConfigGen.cmake)
+include(cmake/WindowsCreateLinkHeader.cmake)
 
 # ---[ Options
 caffe_option(CPU_ONLY  "Build Caffe without CUDA support" OFF) # TODO: rename to USE_CUDA

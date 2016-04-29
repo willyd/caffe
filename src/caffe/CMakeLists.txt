@@ -12,9 +12,15 @@ caffe_default_properties(proto)
 # creates 'test_srcs', 'srcs', 'test_cuda', 'cuda' lists
 caffe_pickup_caffe_sources(${PROJECT_SOURCE_DIR})
 
+# add this option here since CUDA will not honor
+# target_compile_definitions
+if(MSVC AND NOT BUILD_SHARED_LIBS)
+  set(_caffe_static_compile_def -DCAFFE_BUILDING_STATIC_LIB)
+endif()
+
 if(HAVE_CUDA)
-  # collect any compile definitions from imported targets. This important so that 
-  # preprocessor macros such as GLOG_NO_ABBREVIATED_SEVERITIES are defined. 
+  # collect any compile definitions from imported targets. This important so that
+  # preprocessor macros such as GLOG_NO_ABBREVIATED_SEVERITIES are defined.
   # this is required since CUDA macros do not honor the INTERFACE_COMPILE_DEFINITIONS
   unset(__cuda_options)
   foreach(__lib ${Caffe_LINKER_LIBS})
@@ -24,15 +30,16 @@ if(HAVE_CUDA)
         foreach(__def ${__interface_compile_definitions})
           # espace any parentheses because they are failing the build
           # see cmake issue https://cmake.org/Bug/view.php?id=16065
-          string(REPLACE "(" "\\\(" __def_escaped ${__def})         
+          string(REPLACE "(" "\\\(" __def_escaped ${__def})
           string(REPLACE ")" "\\\)" __def_escaped ${__def_escaped})
           # add the required -D flag
           list(APPEND __cuda_options "-D${__def_escaped}")
         endforeach()
-      endif()      
+      endif()
     endif()
   endforeach()
-  # add the required definitions  
+  list(APPEND __cuda_options ${_caffe_static_compile_def})
+  # add the required definitions
   add_definitions(${__cuda_options})
   # it seems that using the OPTIONS argument like:
   # caffe_cuda_compile(cuda_objs ${cuda} OPTIONS ${__cuda_options})
@@ -51,13 +58,23 @@ set_target_properties(caffe PROPERTIES
     SOVERSION ${CAFFE_TARGET_SOVERSION}
     )
 if(MSVC AND BUILD_SHARED_LIBS)
-  # CMake 3.4 introduced a WINDOWS_EXPORT_ALL_SYMBOLS target property that makes it possible to 
+  # CMake 3.4 introduced a WINDOWS_EXPORT_ALL_SYMBOLS target property that makes it possible to
   # build shared libraries without using the usual declspec() decoration.
   # See: https://blog.kitware.com/create-dlls-on-windows-without-declspec-using-new-cmake-export-all-feature/
   # and https://cmake.org/cmake/help/v3.5/prop_tgt/WINDOWS_EXPORT_ALL_SYMBOLS.html
   # for details.
   set_target_properties(caffe PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+elseif(MSVC AND NOT BUILD_SHARED_LIBS)
+  # add a custom build command that generates a list of symbols
+  # to force linking. This is required because MSVC as nothing
+  # the whole-archive option
+  windows_create_link_header(caffe ${caffe_symbols_hdr})
+  get_filename_component(_name ${caffe_symbols_hdr} NAME)
+  set(CAFFE_INCLUDE_SYMBOLS "#include \"caffe/${_name}\"")
+  target_compile_definitions(caffe PRIVATE ${_caffe_static_compile_def})
 endif()
+
+configure_file(${caffe_export_hdr_in} ${caffe_export_hdr})
 
 # ---[ Tests
  add_subdirectory(test)

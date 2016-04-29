@@ -43,7 +43,6 @@ LayerRegistry<Dtype>::Registry() {
 // Adds a creator.
 template <typename Dtype>
 void LayerRegistry<Dtype>::AddCreator(const string& type, Creator creator) {
-  LOG(INFO) << "Registering creator for layer: " << type;
   CreatorRegistry& registry = Registry();
   CHECK_EQ(registry.count(type), 0) << "Layer type " << type
                                     << " already registered.";
