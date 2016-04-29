@@ -64,7 +64,6 @@ string SolverRegistry<Dtype>::SolverTypeListString() {
 template <typename Dtype>
 SolverRegisterer<Dtype>::SolverRegisterer(
     const string& type, Solver<Dtype>* (*creator)(const SolverParameter&)) {
-  // LOG(INFO) << "Registering solver type: " << type;
   SolverRegistry<Dtype>::AddCreator(type, creator);
 }
 
