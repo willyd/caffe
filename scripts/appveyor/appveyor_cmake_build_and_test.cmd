@@ -1,4 +1,10 @@
 @echo off
+
+:: Set python 2.7 with conda as the default python
+set PATH=C:\Miniconda-x64;C:\Miniconda-x64\Scripts;C:\Miniconda-x64\Library\bin;%PATH%
+python --version
+conda install numpy
+
 :: Download the ninja build tool
 @powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/willyd/caffe-builder/master/download_ninja.ps1'))"
 set PATH=%PATH%;%cd%
