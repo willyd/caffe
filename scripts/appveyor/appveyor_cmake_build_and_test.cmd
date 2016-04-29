@@ -26,5 +26,5 @@ cmake --build .
 cmake --build . --target runtest
 
 :: Lint
-cmake --build . lint
+cmake --build . --target lint
 popd
