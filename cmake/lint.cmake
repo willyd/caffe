@@ -1,6 +1,11 @@
 
 set(CMAKE_SOURCE_DIR ..)
-set(LINT_COMMAND ${CMAKE_SOURCE_DIR}/scripts/cpp_lint.py)
+set(python_executable)
+if(WIN32)
+  # TODO do not rely on python beign in path
+  set(python_executable python)
+endif()
+set(LINT_COMMAND ${python_executable} ${CMAKE_SOURCE_DIR}/scripts/cpp_lint.py)
 set(SRC_FILE_EXTENSIONS h hpp hu c cpp cu cc)
 set(EXCLUDE_FILE_EXTENSTIONS pb.h pb.cc)
 set(LINT_DIRS include src/caffe examples tools python matlab)

@@ -4,6 +4,7 @@
 #include <boost/python.hpp>
 #endif
 #include <string>
+#include <vector>
 
 #include "caffe/layer.hpp"
 #include "caffe/layer_factory.hpp"

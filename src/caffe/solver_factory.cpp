@@ -1,4 +1,5 @@
 #include <string>
+#include <vector>
 
 #include "caffe/solver_factory.hpp"
 
@@ -69,4 +70,5 @@ SolverRegisterer<Dtype>::SolverRegisterer(
 
 INSTANTIATE_CLASS(SolverRegistry);
 INSTANTIATE_CLASS(SolverRegisterer);
-}
+
+}  // namespace caffe

@@ -13,7 +13,7 @@
 namespace caffe { namespace db {
 
 #ifdef _MSC_VER
-#if MDB_VERSION_FULL < MDB_VERINT(0,9,17)
+#if MDB_VERSION_FULL < MDB_VERINT(0, 9, 17)
 // On Windows lmdb creates file with the full size causing test failures due
 // to insufficient disk space. We will reduce lmdb size to make tests pass.
 const size_t LMDB_MAP_SIZE = 104857600;    // 100 MB
