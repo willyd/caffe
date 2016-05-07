@@ -67,9 +67,11 @@ if(CMAKE_SCRIPT_MODE_FILE)
         string(REGEX MATCH "^Archive member name at .* /[0-9]+ *([^ ].*\\.obj)$" _match ${_line})
         if(_match)
             file(TO_CMAKE_PATH ${CMAKE_MATCH_1} _object_file)
-            list(APPEND _object_files ${PROJECT_BINARY_DIR}/${_object_file})
+            file(TO_NATIVE_PATH ${_object_file} _object_native_filepath)
+            list(APPEND _object_files ${_object_native_filepath})
         endif()
     endforeach()
+    
     # convert list to EOL separated string
     string(REPLACE ";" "\n" _object_files "${_object_files}")
     set(_object_list_file ${CMAKE_CURRENT_BINARY_DIR}/${CONFIGURATION}/object_list.txt)

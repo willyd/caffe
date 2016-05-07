@@ -1,4 +1,3 @@
-
 ################################################################################################
 # Function to resolve the folder containing the prebuilt dependencies. It not folder was specified
 # via the CAFFE_DEPENDENCIES_DIR environment of cache variable of if this folder is empty. CMake will
@@ -6,7 +5,7 @@
 # Usage:
 #   windows_resolve_dependencies()
 macro(windows_resolve_dependencies)
-    if(MSVC)
+    if( MSVC AND WITH_PREBUILD_MSVC_DEPENDENCIES )
         # TODO check architecture, compiler, build_type and download the right archive
         # Initialize the download url from the environment variable of default value
         set(__dependencies_url "$ENV{CAFFE_DEPENDENCIES_URL}")
@@ -255,7 +254,7 @@ function(copy_resolved_dependencies target dependencies destination)
     file(LOCK ${_lock_file} RELEASE)
 endfunction()
 
-if(CMAKE_SCRIPT_MODE_FILE)
+if( CMAKE_SCRIPT_MODE_FILE AND WITH_PREBUILD_MSVC_DEPENDENCIES )
     # use custom script instead of BundleUtilities
     # because they require an executable and the target provided
     # could be a dll
