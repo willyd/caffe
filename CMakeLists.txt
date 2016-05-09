@@ -20,7 +20,7 @@ add_definitions(-DCMAKE_BUILD)
 # ---[ Download or resolve the provided dependencies folder
 
 if( MSVC )
-    set(WITH_PREBUILD_MSVC_DEPENDENCIES OFF CACHE BOOL "Use the pre-built dependencies. Note that this can only work for Visual Studio 2013 x64.")
+    set(WITH_PREBUILD_MSVC_DEPENDENCIES ON CACHE BOOL "Use the pre-built dependencies. Note that this can only work for Visual Studio 2013 x64.")
 else()
     set(WITH_PREBUILD_MSVC_DEPENDENCIES OFF)
 endif()
