@@ -1,13 +1,34 @@
 #ifdef USE_LMDB
 #include "caffe/util/db_lmdb.hpp"
 
+#if defined(_MSC_VER)
+#include <direct.h>
+#define mkdir(X, Y) _mkdir(X)
+#endif
+
 #include <sys/stat.h>
 
 #include <string>
 
 namespace caffe { namespace db {
 
+#ifdef _MSC_VER
+#if MDB_VERSION_FULL < MDB_VERINT(0, 9, 17)
+// On Windows lmdb creates file with the full size causing test failures due
+// to insufficient disk space. We will reduce lmdb size to make tests pass.
+const size_t LMDB_MAP_SIZE = 104857600;    // 100 MB
+#pragma message("Using 100 MB LMDB_MAP_SIZE")
+#else
+// This was fixed in 0.9.17
+const size_t LMDB_MAP_SIZE = 1099511627776;    // 1 TB
+#pragma message("Using 1 TB LMDB_MAP_SIZE")
+#endif
+// Constant will overflow on 32-bit build, assert that we are using correct
+// build.
+static_assert(sizeof(size_t) >= 8, "LMDB size overflow.");
+#else
 const size_t LMDB_MAP_SIZE = 1099511627776;  // 1 TB
+#endif
 
 void LMDB::Open(const string& source, Mode mode) {
   MDB_CHECK(mdb_env_create(&mdb_env_));

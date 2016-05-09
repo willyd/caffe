@@ -14,6 +14,20 @@ set(CAFFE_TARGET_VERSION "1.0.0-rc3")
 set(CAFFE_TARGET_SOVERSION "1.0.0-rc3")
 add_definitions(-DCAFFE_VERSION=${CAFFE_TARGET_VERSION})
 
+# definition needed to include CMake generated files
+add_definitions(-DCMAKE_BUILD)
+
+# ---[ Download or resolve the provided dependencies folder
+
+if( MSVC )
+    set(WITH_PREBUILD_MSVC_DEPENDENCIES ON CACHE BOOL "Use the pre-built dependencies. Note that this can only work for Visual Studio 2013 x64.")
+else()
+    set(WITH_PREBUILD_MSVC_DEPENDENCIES OFF)
+endif()
+
+include(cmake/WindowsUtils.cmake)
+windows_resolve_dependencies()
+
 # ---[ Using cmake scripts and modules
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
 
@@ -24,6 +38,7 @@ include(cmake/Targets.cmake)
 include(cmake/Misc.cmake)
 include(cmake/Summary.cmake)
 include(cmake/ConfigGen.cmake)
+include(cmake/WindowsCreateLinkHeader.cmake)
 
 # ---[ Options
 caffe_option(CPU_ONLY  "Build Caffe without CUDA support" OFF) # TODO: rename to USE_CUDA
@@ -38,6 +53,15 @@ caffe_option(USE_OPENCV "Build with OpenCV support" ON)
 caffe_option(USE_LEVELDB "Build with levelDB" ON)
 caffe_option(USE_LMDB "Build with lmdb" ON)
 caffe_option(ALLOW_LMDB_NOLOCK "Allow MDB_NOLOCK when reading LMDB files (only if necessary)" OFF)
+
+# CMake 3.4 introduced a WINDOWS_EXPORT_ALL_SYMBOLS target property that makes it possible to 
+# build shared libraries without using the usual declspec() decoration.
+# See: https://blog.kitware.com/create-dlls-on-windows-without-declspec-using-new-cmake-export-all-feature/
+# and https://cmake.org/cmake/help/v3.5/prop_tgt/WINDOWS_EXPORT_ALL_SYMBOLS.html
+# for details.
+if(MSVC AND BUILD_SHARED_LIBS AND CMAKE_VERSION VERSION_LESS 3.4)
+  message(FATAL_ERROR "CMake 3.4 or newer is required to build a shared library with Microsoft Visual Studio")
+endif()
 
 # ---[ Dependencies
 include(cmake/Dependencies.cmake)
@@ -54,7 +78,9 @@ if(USE_libstdcpp)
   message("-- Warning: forcing libstdc++ (controlled by USE_libstdcpp option in cmake)")
 endif()
 
-add_definitions(-DGTEST_USE_OWN_TR1_TUPLE)
+if(NOT MSVC)
+  add_definitions(-DGTEST_USE_OWN_TR1_TUPLE)
+endif()
 
 # ---[ Warnings
 caffe_warnings_disable(CMAKE_CXX_FLAGS -Wno-sign-compare -Wno-uninitialized)
