@@ -33,11 +33,9 @@ list(APPEND Caffe_LINKER_LIBS ${GFLAGS_LIBRARIES})
 include(cmake/ProtoBuf.cmake)
 
 # ---[ HDF5
-find_package(HDF5 COMPONENTS C HL REQUIRED)
+include("cmake/External/hdf5.cmake")
 include_directories(SYSTEM ${HDF5_INCLUDE_DIRS} ${HDF5_HL_INCLUDE_DIR})
 list(APPEND Caffe_LINKER_LIBS ${HDF5_LIBRARIES})
-
-include(cmake/Modules/FindHDF5Filters.cmake)
 
 # ---[ LMDB
 if(USE_LMDB)
