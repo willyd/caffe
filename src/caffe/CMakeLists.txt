@@ -3,8 +3,11 @@ file(GLOB proto_files proto/*.proto)
 caffe_protobuf_generate_cpp_py(${proto_gen_folder} proto_srcs proto_hdrs proto_python ${proto_files})
 
 # include python files either to force generation
-add_library(proto STATIC ${proto_hdrs} ${proto_srcs} ${proto_python})
-set(Caffe_LINKER_LIBS proto ${Caffe_LINKER_LIBS}) # note, crucial to prepend!
+add_definitions(-DPROTOBUF_USE_DLLS)
+add_library(proto OBJECT ${proto_srcs} ${proto_python})
+target_compile_definitions(proto PRIVATE -DCAFFE_EXPORT=__declspec\(dllexport\))
+
+set(Caffe_LINKER_LIBS ${Caffe_LINKER_LIBS}) # note, crucial to prepend!
 caffe_default_properties(proto)
 
 # --[ Caffe library
@@ -50,8 +53,8 @@ if(HAVE_CUDA)
   list(APPEND srcs ${cuda_objs} ${cuda})
 endif()
 
-add_library(caffe ${srcs})
-target_link_libraries(caffe proto ${Caffe_LINKER_LIBS})
+add_library(caffe ${srcs} $<TARGET_OBJECTS:proto>)
+target_link_libraries(caffe ${Caffe_LINKER_LIBS})
 caffe_default_properties(caffe)
 set_target_properties(caffe PROPERTIES
     VERSION   ${CAFFE_TARGET_VERSION}
@@ -64,6 +67,11 @@ if(MSVC AND BUILD_SHARED_LIBS)
   # and https://cmake.org/cmake/help/v3.5/prop_tgt/WINDOWS_EXPORT_ALL_SYMBOLS.html
   # for details.
   set_target_properties(caffe PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+  target_compile_definitions(caffe PRIVATE -DCAFFE_EXPORT=__declspec\(dllexport\)
+                                   INTERFACE -DCAFFE_EXPORT=__declspec\(dllimport\)
+          )
+
+
 elseif(MSVC AND NOT BUILD_SHARED_LIBS)
   # add a custom build command that generates a list of symbols
   # to force linking. This is required because MSVC as nothing
@@ -88,7 +96,7 @@ configure_file(${caffe_export_hdr_in} ${caffe_export_hdr})
 # ---[ Install
 install(DIRECTORY ${Caffe_INCLUDE_DIR}/caffe DESTINATION include)
 install(FILES ${proto_hdrs} DESTINATION include/caffe/proto)
-install(TARGETS caffe proto EXPORT CaffeTargets DESTINATION lib)
+install(TARGETS caffe EXPORT CaffeTargets DESTINATION lib)
 if(MSVC AND NOT BUILD_SHARED_LIBS)
   install(FILES ${caffe_export_hdr} ${caffe_symbols_hdr} DESTINATION include/caffe)
 endif()
