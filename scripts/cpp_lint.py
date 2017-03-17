@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python
 #
 # Copyright (c) 2009 Google Inc. All rights reserved.
 #
@@ -52,6 +52,7 @@ import string
 import sys
 import unicodedata
 
+PY_3K = (sys.version_info[0] == 3)
 
 _USAGE = """
 Syntax: cpp_lint.py [--verbose=#] [--output=vs7] [--filter=-x,+y,...]
@@ -756,7 +757,7 @@ class _CppLintState(object):
 
   def PrintErrorCounts(self):
     """Print a summary of errors by category, and the total."""
-    for category, count in self.errors_by_category.iteritems():
+    for category, count in self.errors_by_category.items():
       sys.stderr.write('Category \'%s\' errors found: %d\n' %
                        (category, count))
     sys.stderr.write('Total errors found: %d\n' % self.error_count)
@@ -1241,7 +1242,7 @@ def FindEndOfExpressionInLine(line, startpos, depth, startchar, endchar):
     On finding matching endchar: (index just after matching endchar, 0)
     Otherwise: (-1, new depth at end of this line)
   """
-  for i in xrange(startpos, len(line)):
+  for i in range(startpos, len(line)):
     if line[i] == startchar:
       depth += 1
     elif line[i] == endchar:
@@ -1314,7 +1315,7 @@ def FindStartOfExpressionInLine(line, endpos, depth, startchar, endchar):
     On finding matching startchar: (index at matching startchar, 0)
     Otherwise: (-1, new depth at beginning of this line)
   """
-  for i in xrange(endpos, -1, -1):
+  for i in range(endpos, -1, -1):
     if line[i] == endchar:
       depth += 1
     elif line[i] == startchar:
@@ -1374,7 +1375,7 @@ def CheckForCopyright(filename, lines, error):
 
   # We'll check up to line 10. Don't forget there's a
   # dummy line at the front.
-  for line in xrange(1, min(len(lines), 11)):
+  for line in range(1, min(len(lines), 11)):
     if _RE_COPYRIGHT.search(lines[line], re.I):
       error(filename, 0, 'legal/copyright', 5,
             'Copyright message found.  '
@@ -1595,10 +1596,10 @@ def CheckCaffeAlternatives(filename, clean_lines, linenum, error):
 def CheckCaffeDataLayerSetUp(filename, clean_lines, linenum, error):
   """Except the base classes, Caffe DataLayer should define DataLayerSetUp
      instead of LayerSetUp.
-     
+
   The base DataLayers define common SetUp steps, the subclasses should
   not override them.
-  
+
   Args:
     filename: The name of the current file.
     clean_lines: A CleansedLines instance containing the file.
@@ -2423,7 +2424,7 @@ def CheckForFunctionLengths(filename, clean_lines, linenum,
 
   if starting_func:
     body_found = False
-    for start_linenum in xrange(linenum, clean_lines.NumLines()):
+    for start_linenum in range(linenum, clean_lines.NumLines()):
       start_line = lines[start_linenum]
       joined_line += ' ' + start_line.lstrip()
       if Search(r'(;|})', start_line):  # Declarations and trivial functions
@@ -2946,7 +2947,7 @@ def CheckSpacing(filename, clean_lines, linenum, nesting_state, error):
     trailing_text = ''
     if endpos > -1:
       trailing_text = endline[endpos:]
-    for offset in xrange(endlinenum + 1,
+    for offset in range(endlinenum + 1,
                          min(endlinenum + 3, clean_lines.NumLines() - 1)):
       trailing_text += clean_lines.elided[offset]
     if not Match(r'^[\s}]*[{.;,)<\]]', trailing_text):
@@ -3316,7 +3317,7 @@ def CheckCheck(filename, clean_lines, linenum, error):
     expression = lines[linenum][start_pos + 1:end_pos - 1]
   else:
     expression = lines[linenum][start_pos + 1:]
-    for i in xrange(linenum + 1, end_line):
+    for i in range(linenum + 1, end_line):
       expression += lines[i]
     expression += last_line[0:end_pos - 1]
 
@@ -3444,16 +3445,16 @@ def GetLineWidth(line):
     The width of the line in column positions, accounting for Unicode
     combining characters and wide characters.
   """
-  if isinstance(line, unicode):
-    width = 0
-    for uc in unicodedata.normalize('NFC', line):
-      if unicodedata.east_asian_width(uc) in ('W', 'F'):
-        width += 2
-      elif not unicodedata.combining(uc):
-        width += 1
-    return width
-  else:
-    return len(line)
+  if not PY_3K:
+    if isinstance(line, unicode):
+      width = 0
+      for uc in unicodedata.normalize('NFC', line):
+        if unicodedata.east_asian_width(uc) in ('W', 'F'):
+          width += 2
+        elif not unicodedata.combining(uc):
+          width += 1
+      return width
+  return len(line)
 
 
 def CheckStyle(filename, clean_lines, linenum, file_extension, nesting_state,
@@ -3774,7 +3775,7 @@ def _GetTextInside(text, start_pattern):
 
   # Give opening punctuations to get the matching close-punctuations.
   matching_punctuation = {'(': ')', '{': '}', '[': ']'}
-  closing_punctuation = set(matching_punctuation.itervalues())
+  closing_punctuation = set(matching_punctuation.values())
 
   # Find the position to start extracting text.
   match = re.search(start_pattern, text, re.M)
@@ -4189,7 +4190,7 @@ def CheckForNonConstReference(filename, clean_lines, linenum,
           # Found the matching < on an earlier line, collect all
           # pieces up to current line.
           line = ''
-          for i in xrange(startline, linenum + 1):
+          for i in range(startline, linenum + 1):
             line += clean_lines.elided[i].strip()
 
   # Check for non-const references in function parameters.  A single '&' may
@@ -4228,7 +4229,7 @@ def CheckForNonConstReference(filename, clean_lines, linenum,
     # Don't see a whitelisted function on this line.  Actually we
     # didn't see any function name on this line, so this is likely a
     # multi-line parameter list.  Try a bit harder to catch this case.
-    for i in xrange(2):
+    for i in range(2):
       if (linenum > i and
           Search(whitelisted_functions, clean_lines.elided[linenum - i - 1])):
         check_params = False
@@ -4501,7 +4502,7 @@ def CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error,
   required = {}  # A map of header name to linenumber and the template entity.
                  # Example of required: { '<functional>': (1219, 'less<>') }
 
-  for linenum in xrange(clean_lines.NumLines()):
+  for linenum in range(clean_lines.NumLines()):
     line = clean_lines.elided[linenum]
     if not line or line[0] == '#':
       continue
@@ -4672,7 +4673,7 @@ def ProcessFileData(filename, file_extension, lines, error,
 
   RemoveMultiLineComments(filename, lines, error)
   clean_lines = CleansedLines(lines)
-  for line in xrange(clean_lines.NumLines()):
+  for line in range(clean_lines.NumLines()):
     ProcessLine(filename, file_extension, clean_lines, line,
                 include_state, function_state, nesting_state, error,
                 extra_check_functions)
@@ -4851,10 +4852,11 @@ def main():
 
   # Change stderr to write with replacement characters so we don't die
   # if we try to print something containing non-ASCII characters.
-  sys.stderr = codecs.StreamReaderWriter(sys.stderr,
-                                         codecs.getreader('utf8'),
-                                         codecs.getwriter('utf8'),
-                                         'replace')
+  if not PY_3K:
+    sys.stderr = codecs.StreamReaderWriter(sys.stderr,
+                                          codecs.getreader('utf8'),
+                                          codecs.getwriter('utf8'),
+                                          'replace')
 
   _cpplint_state.ResetErrorCounts()
   for filename in filenames:
