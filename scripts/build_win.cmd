@@ -60,11 +60,6 @@ if DEFINED APPVEYOR (
         set RUN_TESTS=0
     )
 
-    :: Disable linting with python 3 until we find why the script fails
-    if !PYTHON_VERSION! EQU 3 (
-        set RUN_LINT=0
-    )
-
 ) else (
     :: Change the settings here to match your setup
     :: Change MSVC_VERSION to 12 to use VS 2013
