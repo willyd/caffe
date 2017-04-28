@@ -179,6 +179,11 @@ if(CMAKE_SCRIPT_MODE_FILE)
   get_prerequisites(${TARGET} _prerequisites 1 1 "" "${DIRECTORIES}")
   foreach(_prereq ${_prerequisites} ${PLUGINS})
     # Resolve the dependency using the list of directories
+    string(TOLOWER "${_prereq}" _prereq_lower)
+    if("${_prereq_lower}" MATCHES "(api-ms-win-|vcruntime|concrt)[^/]+dll")
+      # skip system dlls
+      continue()
+    endif()
     gp_resolve_item("${TARGET}" "${_prereq}" "" "${DIRECTORIES}" resolved_file)
     # Copy or create hardlink (if possible)
     if(EXISTS ${resolved_file})

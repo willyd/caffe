@@ -1,7 +1,9 @@
 @echo off
 @setlocal EnableDelayedExpansion
 
-:: Default values
+set BUILD_DIR=build
+
+REM Default values
 if DEFINED APPVEYOR (
     echo Setting Appveyor defaults
     if NOT DEFINED MSVC_VERSION set MSVC_VERSION=14
@@ -19,25 +21,26 @@ if DEFINED APPVEYOR (
     if NOT DEFINED RUN_TESTS set RUN_TESTS=1
     if NOT DEFINED RUN_LINT set RUN_LINT=1
     if NOT DEFINED RUN_INSTALL set RUN_INSTALL=1
+    if NOT DEFINED CMAKE_INSTALL_PREFIX set CMAKE_INSTALL_PREFIX=install
 
-    :: Set python 2.7 with conda as the default python
+    REM Set python 2.7 with conda as the default python
     if !PYTHON_VERSION! EQU 2 (
         set CONDA_ROOT=C:\Miniconda-x64
     )
-    :: Set python 3.5 with conda as the default python
+    REM Set python 3.5 with conda as the default python
     if !PYTHON_VERSION! EQU 3 (
         set CONDA_ROOT=C:\Miniconda35-x64
     )
     set PATH=!CONDA_ROOT!;!CONDA_ROOT!\Scripts;!CONDA_ROOT!\Library\bin;!PATH!
 
-    :: Check that we have the right python version
+    REM Check that we have the right python version
     !PYTHON_EXE! --version
-    :: Add the required channels
+    REM Add the required channels
     conda config --add channels conda-forge
     conda config --add channels willyd
-    :: Update conda
+    REM Update conda
     conda update conda -y
-    :: Download other required packages
+    REM Download other required packages
     conda install --yes cmake ninja numpy scipy protobuf==3.1.0 six scikit-image pyyaml pydotplus graphviz
 
     if ERRORLEVEL 1  (
@@ -45,7 +48,7 @@ if DEFINED APPVEYOR (
       exit /b 1
     )
 
-    :: Install cuda and disable tests if needed
+    REM Install cuda and disable tests if needed
     if !WITH_CUDA! == 1 (
         call %~dp0\appveyor\appveyor_install_cuda.cmd
         set CPU_ONLY=0
@@ -55,53 +58,56 @@ if DEFINED APPVEYOR (
         set CPU_ONLY=1
     )
 
-    :: Disable the tests in debug config
+    REM Disable the tests in debug config
     if "%CMAKE_CONFIG%" == "Debug" (
         echo Disabling tests on appveyor with config == %CMAKE_CONFIG%
         set RUN_TESTS=0
     )
 
-    :: Disable linting with python 3 until we find why the script fails
+    REM Disable linting with python 3 until we find why the script fails
     if !PYTHON_VERSION! EQU 3 (
         set RUN_LINT=0
     )
 
 ) else (
-    :: Change the settings here to match your setup
-    :: Change MSVC_VERSION to 12 to use VS 2013
+    REM Change the settings here to match your setup.
+    REM Change MSVC_VERSION to 12 to use VS 2013
     if NOT DEFINED MSVC_VERSION set MSVC_VERSION=14
-    :: Change to 1 to use Ninja generator (builds much faster)
+    REM Change to 1 to use Ninja generator (builds much faster)
     if NOT DEFINED WITH_NINJA set WITH_NINJA=1
-    :: Change to 1 to build caffe without CUDA support
+    REM Change to 1 to build caffe without CUDA support
     if NOT DEFINED CPU_ONLY set CPU_ONLY=0
-    :: Change to generate CUDA code for one of the following GPU architectures
-    :: [Fermi  Kepler  Maxwell  Pascal  All]
+    REM Change to generate CUDA code for one of the following GPU architectures
+    REM [Fermi  Kepler  Maxwell  Pascal  All]
     if NOT DEFINED CUDA_ARCH_NAME set CUDA_ARCH_NAME=Auto
-    :: Change to Debug to build Debug. This is only relevant for the Ninja generator the Visual Studio generator will generate both Debug and Release configs
+    REM Change to Debug to build Debug. This is only relevant for the Ninja generator
+    REM the Visual Studio generator will generate both Debug and Release configs
     if NOT DEFINED CMAKE_CONFIG set CMAKE_CONFIG=Release
-    :: Set to 1 to use NCCL
+    REM Set to 1 to use NCCL
     if NOT DEFINED USE_NCCL set USE_NCCL=0
-    :: Change to 1 to build a caffe.dll
+    REM Change to 1 to build a caffe.dll
     if NOT DEFINED CMAKE_BUILD_SHARED_LIBS set CMAKE_BUILD_SHARED_LIBS=0
-    :: Change to 3 if using python 3.5 (only 2.7 and 3.5 are supported)
+    REM Change to 3 if using python 3.5 (only 2.7 and 3.5 are supported)
     if NOT DEFINED PYTHON_VERSION set PYTHON_VERSION=2
-    :: Change these options for your needs.
+    REM Change these options for your needs.
     if NOT DEFINED BUILD_PYTHON set BUILD_PYTHON=1
     if NOT DEFINED BUILD_PYTHON_LAYER set BUILD_PYTHON_LAYER=1
     if NOT DEFINED BUILD_MATLAB set BUILD_MATLAB=0
-    :: If python is on your path leave this alone
+    REM If python is on your path leave this alone
     if NOT DEFINED PYTHON_EXE set PYTHON_EXE=python
-    :: Run the tests
+    REM Run the tests
     if NOT DEFINED RUN_TESTS set RUN_TESTS=0
-    :: Run lint
+    REM Run lint
     if NOT DEFINED RUN_LINT set RUN_LINT=0
-    :: Build the install target
+    REM Build the install target
     if NOT DEFINED RUN_INSTALL set RUN_INSTALL=0
+    REM Change to install somewhere else
+    if NOT DEFINED CMAKE_INSTALL_PREFIX set CMAKE_INSTALL_PREFIX=install
 )
 
-:: Set the appropriate CMake generator
-:: Use the exclamation mark ! below to delay the
-:: expansion of CMAKE_GENERATOR
+REM Set the appropriate CMake generator
+REM Use the exclamation mark ! below
+REM to delay the expansion of CMAKE_GENERATOR
 if %WITH_NINJA% EQU 0 (
     if "%MSVC_VERSION%"=="14" (
         set CMAKE_GENERATOR=Visual Studio 14 2015 Win64
@@ -136,10 +142,11 @@ echo INFO: PYTHON_EXE                 = "!PYTHON_EXE!"
 echo INFO: RUN_TESTS                  = !RUN_TESTS!
 echo INFO: RUN_LINT                   = !RUN_LINT!
 echo INFO: RUN_INSTALL                = !RUN_INSTALL!
+echo INFO: CMAKE_INSTALL_PREFIX       = !CMAKE_INSTALL_PREFIX!
 echo INFO: ============================================================
 
-:: Build and exectute the tests
-:: Do not run the tests with shared library
+REM Build and exectute the tests
+REM Do not run the tests with shared library
 if !RUN_TESTS! EQU 1 (
     if %CMAKE_BUILD_SHARED_LIBS% EQU 1 (
         echo WARNING: Disabling tests with shared library build
@@ -147,16 +154,16 @@ if !RUN_TESTS! EQU 1 (
     )
 )
 
-if NOT EXIST build mkdir build
-pushd build
+if NOT EXIST "%BUILD_DIR%" mkdir "%BUILD_DIR%"
+pushd "%BUILD_DIR%"
 
-:: Setup the environement for VS x64
+REM Setup the environement for VS x64
 set batch_file=!VS%MSVC_VERSION%0COMNTOOLS!..\..\VC\vcvarsall.bat
 call "%batch_file%" amd64
 
-:: Configure using cmake and using the caffe-builder dependencies
-:: Add -DCUDNN_ROOT=C:/Projects/caffe/cudnn-8.0-windows10-x64-v5.1/cuda ^
-:: below to use cuDNN
+REM Configure using cmake and using the caffe-builder dependencies
+REM Add -DCUDNN_ROOT=C:/Projects/caffe/cudnn-8.0-windows10-x64-v5.1/cuda ^
+REM below to use cuDNN
 cmake -G"!CMAKE_GENERATOR!" ^
       -DBLAS=Open ^
       -DCMAKE_BUILD_TYPE:STRING=%CMAKE_CONFIG% ^
@@ -169,6 +176,7 @@ cmake -G"!CMAKE_GENERATOR!" ^
       -DINSTALL_PREREQUISITES:BOOL=1 ^
       -DUSE_NCCL:BOOL=!USE_NCCL! ^
       -DCUDA_ARCH_NAME:STRING=%CUDA_ARCH_NAME% ^
+      -DCMAKE_INSTALL_PREFIX:PATH=%CMAKE_INSTALL_PREFIX% ^
       "%~dp0\.."
 
 if ERRORLEVEL 1 (
@@ -176,7 +184,7 @@ if ERRORLEVEL 1 (
   exit /b 1
 )
 
-:: Lint
+REM Lint
 if %RUN_LINT% EQU 1 (
     cmake --build . --target lint  --config %CMAKE_CONFIG%
 )
@@ -186,7 +194,7 @@ if ERRORLEVEL 1 (
   exit /b 1
 )
 
-:: Build the library and tools
+REM Build the library and tools
 cmake --build . --config %CMAKE_CONFIG%
 
 if ERRORLEVEL 1 (
@@ -194,7 +202,7 @@ if ERRORLEVEL 1 (
   exit /b 1
 )
 
-:: Build and exectute the tests
+REM Build and exectute the tests
 if !RUN_TESTS! EQU 1 (
     cmake --build . --target runtest --config %CMAKE_CONFIG%
 
@@ -205,10 +213,10 @@ if !RUN_TESTS! EQU 1 (
 
     if %BUILD_PYTHON% EQU 1 (
         if %BUILD_PYTHON_LAYER% EQU 1 (
-            :: Run python tests only in Release build since
-            :: the _caffe module is _caffe-d is debug
+            REM Run python tests only in Release build since
+            REM the _caffe module is _caffe-d is debug
             if "%CMAKE_CONFIG%"=="Release" (
-                :: Run the python tests
+                REM Run the python tests
                 cmake --build . --target pytest
 
                 if ERRORLEVEL 1 (
