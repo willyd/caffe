@@ -5,6 +5,7 @@ if(MSVC)
   # search using protobuf-config.cmake
   find_package( Protobuf REQUIRED NO_MODULE)
   set(PROTOBUF_INCLUDE_DIR ${PROTOBUF_INCLUDE_DIRS})
+  set(PROTOBUF_LIBRARIES protobuf::libprotobuf)
 else()
   find_package( Protobuf REQUIRED )
 endif()
