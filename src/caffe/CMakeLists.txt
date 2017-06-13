@@ -102,7 +102,10 @@ configure_file(${caffe_export_hdr_in} ${caffe_export_hdr})
 # ---[ Install
 install(DIRECTORY ${Caffe_INCLUDE_DIR}/caffe DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(FILES ${proto_hdrs} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/caffe/proto)
-install(TARGETS caffe caffeproto EXPORT CaffeTargets DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(TARGETS caffe caffeproto EXPORT CaffeTargets
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 if(MSVC AND NOT BUILD_SHARED_LIBS)
   install(FILES ${caffe_export_hdr} ${caffe_symbols_hdr} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/caffe)
 endif()

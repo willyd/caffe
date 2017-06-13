@@ -10,7 +10,7 @@
         set(nccl_PREFIX ${CMAKE_BINARY_DIR}/external/nccl-prefix)
         # install directory
         set(nccl_INSTALL ${CMAKE_BINARY_DIR}/external/nccl-install)
-        ExternalProject_Add(nccl
+        ExternalProject_Add(nccl_external
         PREFIX ${nccl_PREFIX}
         URL https://github.com/willyd/nccl/archive/470b3130457f125f4608c7baee71123aa16a3b12.zip
         UPDATE_COMMAND ""

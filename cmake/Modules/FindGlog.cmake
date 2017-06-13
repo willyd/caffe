@@ -20,8 +20,13 @@ if(MSVC)
     # rely on glog-config.cmake
     find_package(glog NO_MODULE)
 
-    set(GLOG_LIBRARY ${glog_LIBRARIES})
-    set(GLOG_INCLUDE_DIR ${glog_INCLUDE_DIRS})
+    if(TARGET glog)
+      set(GLOG_LIBRARY glog)
+      get_target_property(glog_INCLUDE_DIRS glog INTERFACE_INCLUDE_DIRECTORIES)
+    elseif(TARGET glog::glog)
+      set(GLOG_LIBRARY glog::glog)
+      get_target_property(glog_INCLUDE_DIRS glog::glog INTERFACE_INCLUDE_DIRECTORIES)
+    endif()
 else()
     find_library(GLOG_LIBRARY glog
         PATHS ${GLOG_ROOT_DIR}
