@@ -10,7 +10,11 @@ add_library(caffeproto OBJECT ${proto_hdrs} ${proto_srcs} ${proto_python})
 caffe_default_properties(caffeproto)
 # target_link_libraries(caffeproto PUBLIC ${PROTOBUF_LIBRARIES})
 target_include_directories(caffeproto PUBLIC ${PROTOBUF_INCLUDE_DIR})
-target_compile_definitions(caffeproto PRIVATE -DCAFFE_EXPORT=__declspec\(dllexport\))
+if(BUILD_SHARED_LIBS)
+  target_compile_definitions(caffeproto PRIVATE -DCAFFE_EXPORT=__declspec\(dllexport\))
+else()
+  target_compile_definitions(caffeproto PRIVATE -DCAFFE_EXPORT)
+endif()
 
 # list(INSERT Caffe_LINKER_LIBS 0 PUBLIC caffeproto) # note, crucial to prepend!
 
@@ -91,6 +95,7 @@ elseif(MSVC AND NOT BUILD_SHARED_LIBS)
   # definition needed to include CMake generated files
   target_compile_definitions(caffe PRIVATE ${_caffe_static_compile_def}
                                    PUBLIC -DCMAKE_WINDOWS_BUILD)
+  target_compile_definitions(caffe PUBLIC -DCAFFE_EXPORT)
 endif()
 if(MSVC)
   # Disable Boost autolinking for consuming projects
