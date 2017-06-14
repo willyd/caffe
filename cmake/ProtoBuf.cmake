@@ -3,7 +3,11 @@
 
 if(MSVC)
   # search using protobuf-config.cmake
-  find_package( Protobuf REQUIRED NO_MODULE)
+  # required protobuf 3.3 for shared library build only
+  if(BUILD_SHARED_LIBS)
+    set(Protobuf_REQUIRED_VERSION 3.3)
+  endif()
+  find_package( Protobuf ${Protobuf_REQUIRED_VERSION} REQUIRED NO_MODULE)
   if(TARGET protobuf::libprotobuf)
     set(PROTOBUF_LIBRARIES protobuf::libprotobuf)
     get_target_property(PROTOBUF_INCLUDE_DIR protobuf::libprotobuf INTERFACE_INCLUDE_DIRECTORIES)
@@ -89,7 +93,7 @@ function(caffe_protobuf_generate_cpp_py output_dir srcs_var hdrs_var python_var)
              "${output_dir}/${fil_we}.pb.h"
              "${output_dir}/${fil_we}_pb2.py"
       COMMAND ${CMAKE_COMMAND} -E make_directory "${output_dir}"
-      COMMAND ${PROTOBUF_PROTOC_EXECUTABLE} --cpp_out    ${output_dir} ${_protoc_include} ${abs_fil}
+      COMMAND ${PROTOBUF_PROTOC_EXECUTABLE} --cpp_out=dllexport_decl=CAFFE_EXPORT:${output_dir} ${_protoc_include} ${abs_fil}
       COMMAND ${PROTOBUF_PROTOC_EXECUTABLE} --python_out ${output_dir} ${_protoc_include} ${abs_fil}
       DEPENDS ${abs_fil}
       COMMENT "Running C++/Python protocol buffer compiler on ${fil}" VERBATIM )

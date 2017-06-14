@@ -3,12 +3,16 @@ file(GLOB proto_files proto/*.proto)
 caffe_protobuf_generate_cpp_py(${proto_gen_folder} proto_srcs proto_hdrs proto_python ${proto_files})
 
 # include python files either to force generation
-add_library(caffeproto STATIC ${proto_hdrs} ${proto_srcs} ${proto_python})
+if(BUILD_SHARED_LIBS)
+  add_definitions(-DPROTOBUF_USE_DLLS)
+endif()
+add_library(caffeproto OBJECT ${proto_hdrs} ${proto_srcs} ${proto_python})
 caffe_default_properties(caffeproto)
-target_link_libraries(caffeproto PUBLIC ${PROTOBUF_LIBRARIES})
+# target_link_libraries(caffeproto PUBLIC ${PROTOBUF_LIBRARIES})
 target_include_directories(caffeproto PUBLIC ${PROTOBUF_INCLUDE_DIR})
+target_compile_definitions(caffeproto PRIVATE -DCAFFE_EXPORT=__declspec\(dllexport\))
 
-list(INSERT Caffe_LINKER_LIBS 0 PUBLIC caffeproto) # note, crucial to prepend!
+# list(INSERT Caffe_LINKER_LIBS 0 PUBLIC caffeproto) # note, crucial to prepend!
 
 # --[ Caffe library
 
@@ -53,7 +57,7 @@ if(HAVE_CUDA)
   list(APPEND srcs ${cuda_objs} ${cuda})
 endif()
 
-add_library(caffe ${srcs})
+add_library(caffe ${srcs} $<TARGET_OBJECTS:caffeproto>)
 caffe_default_properties(caffe)
 target_link_libraries(caffe ${Caffe_LINKER_LIBS})
 target_include_directories(caffe ${Caffe_INCLUDE_DIRS}
@@ -75,6 +79,8 @@ if(MSVC AND BUILD_SHARED_LIBS)
   # and https://cmake.org/cmake/help/v3.5/prop_tgt/WINDOWS_EXPORT_ALL_SYMBOLS.html
   # for details.
   set_target_properties(caffe PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+  target_compile_definitions(caffe PRIVATE -DCAFFE_EXPORT=__declspec\(dllexport\)
+                                   INTERFACE -DCAFFE_EXPORT=__declspec\(dllimport\))
 elseif(MSVC AND NOT BUILD_SHARED_LIBS)
   # add a custom build command that generates a list of symbols
   # to force linking. This is required because MSVC as nothing
@@ -102,7 +108,7 @@ configure_file(${caffe_export_hdr_in} ${caffe_export_hdr})
 # ---[ Install
 install(DIRECTORY ${Caffe_INCLUDE_DIR}/caffe DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(FILES ${proto_hdrs} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/caffe/proto)
-install(TARGETS caffe caffeproto EXPORT CaffeTargets
+install(TARGETS caffe EXPORT CaffeTargets
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

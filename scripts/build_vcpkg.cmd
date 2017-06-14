@@ -32,5 +32,5 @@ cmake -GNinja ^
       -DZLIB_LIBRARY:FILEPATH="%ZLIB_LIBRARY%" ^
       -DCMAKE_TOOLCHAIN_FILE:FILEPATH="%vcpkg_root%\scripts\buildsystems\vcpkg.cmake" ^
       ..
-call ninja > build.log
+call ninja | tee build.log
 popd
