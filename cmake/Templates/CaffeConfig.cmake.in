@@ -38,6 +38,10 @@ if(@USE_OPENCV@)
 endif()
 
 # Handle other imported targets libraries
+if(@PROTOBUF_IMPORTED@)
+  find_package(Protobuf REQUIRED NO_MODULE)
+endif()
+
 if(@GFLAGS_IMPORTED@)
   find_package(gflags REQUIRED NO_MODULE)
 endif()

@@ -24,6 +24,13 @@ function(caffe_generate_export_configs)
     set(HAVE_CUDA FALSE)
   endif()
 
+  set(PROTOBUF_IMPORTED OFF)
+  foreach(_lib ${PROTOBUF_LIBRARIES})
+    if(TARGET ${_lib})
+      set(PROTOBUF_IMPORTED ON)
+    endif()
+  endforeach()
+
   set(GFLAGS_IMPORTED OFF)
   foreach(_lib ${GFLAGS_LIBRARIES})
     if(TARGET ${_lib})
