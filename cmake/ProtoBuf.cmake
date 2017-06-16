@@ -88,12 +88,17 @@ function(caffe_protobuf_generate_cpp_py output_dir srcs_var hdrs_var python_var)
     list(APPEND ${hdrs_var} "${output_dir}/${fil_we}.pb.h")
     list(APPEND ${python_var} "${output_dir}/${fil_we}_pb2.py")
 
+    if(BUILD_SHARED_LIBS)
+      set(output_dir_opt --cpp_out=dllexport_decl=CAFFE_EXPORT:${output_dir})
+    else()
+      set(output_dir_opt --cpp_out ${output_dir})
+    endif()
     add_custom_command(
       OUTPUT "${output_dir}/${fil_we}.pb.cc"
              "${output_dir}/${fil_we}.pb.h"
              "${output_dir}/${fil_we}_pb2.py"
       COMMAND ${CMAKE_COMMAND} -E make_directory "${output_dir}"
-      COMMAND ${PROTOBUF_PROTOC_EXECUTABLE} --cpp_out=dllexport_decl=CAFFE_EXPORT:${output_dir} ${_protoc_include} ${abs_fil}
+      COMMAND ${PROTOBUF_PROTOC_EXECUTABLE} ${output_dir_opt} ${_protoc_include} ${abs_fil}
       COMMAND ${PROTOBUF_PROTOC_EXECUTABLE} --python_out ${output_dir} ${_protoc_include} ${abs_fil}
       DEPENDS ${abs_fil}
       COMMENT "Running C++/Python protocol buffer compiler on ${fil}" VERBATIM )

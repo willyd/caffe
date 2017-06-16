@@ -12,8 +12,6 @@ caffe_default_properties(caffeproto)
 target_include_directories(caffeproto PUBLIC ${PROTOBUF_INCLUDE_DIR})
 if(BUILD_SHARED_LIBS)
   target_compile_definitions(caffeproto PRIVATE -DCAFFE_EXPORT=__declspec\(dllexport\))
-else()
-  target_compile_definitions(caffeproto PRIVATE -DCAFFE_EXPORT)
 endif()
 
 # list(INSERT Caffe_LINKER_LIBS 0 PUBLIC caffeproto) # note, crucial to prepend!
