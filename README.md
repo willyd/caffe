@@ -28,7 +28,7 @@ Prebuilt binaries can be downloaded from the latest CI build on appveyor for the
 ### Requirements
 
  - Visual Studio 2013 or 2015
- - [CMake](https://cmake.org/) 3.4 or higher (Visual Studio and [Ninja](https://ninja-build.org/) generators are supported)
+ - [CMake](https://cmake.org/) 3.8 or higher (Visual Studio and [Ninja](https://ninja-build.org/) generators are supported)
 
 ### Optional Dependencies
 

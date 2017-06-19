@@ -2,17 +2,35 @@
 file(GLOB proto_files proto/*.proto)
 caffe_protobuf_generate_cpp_py(${proto_gen_folder} proto_srcs proto_hdrs proto_python ${proto_files})
 
+# collect any compile definitions from imported targets. This important so that
+# preprocessor macros such as GLOG_NO_ABBREVIATED_SEVERITIES are defined.
+# this is required since CUDA macros do not honor the INTERFACE_COMPILE_DEFINITIONS
+unset(caffe_interface_compile_options)
+foreach(__lib ${Caffe_LINKER_LIBS})
+  if(TARGET ${__lib})
+    get_target_property(__interface_compile_definitions ${__lib} INTERFACE_COMPILE_DEFINITIONS)
+    if(__interface_compile_definitions)
+      foreach(__def ${__interface_compile_definitions})
+        # espace any parentheses because they are failing the build
+        # see cmake issue https://cmake.org/Bug/view.php?id=16065
+        string(REPLACE "(" "\\\(" __def_escaped ${__def})
+        string(REPLACE ")" "\\\)" __def_escaped ${__def_escaped})
+        # add the required -D flag
+        list(APPEND caffe_interface_compile_options "-D${__def_escaped}")
+      endforeach()
+    endif()
+  endif()
+endforeach()
+
 # include python files either to force generation
-if(BUILD_SHARED_LIBS)
-  add_definitions(-DPROTOBUF_USE_DLLS)
-endif()
 add_library(caffeproto OBJECT ${proto_hdrs} ${proto_srcs} ${proto_python})
 caffe_default_properties(caffeproto)
 # target_link_libraries(caffeproto PUBLIC ${PROTOBUF_LIBRARIES})
 target_include_directories(caffeproto PUBLIC ${PROTOBUF_INCLUDE_DIR})
-if(BUILD_SHARED_LIBS)
+if(MSVC AND BUILD_SHARED_LIBS)
   target_compile_definitions(caffeproto PRIVATE -DCAFFE_EXPORT=__declspec\(dllexport\))
 endif()
+target_compile_definitions(caffeproto PRIVATE ${caffe_interface_compile_options})
 
 # list(INSERT Caffe_LINKER_LIBS 0 PUBLIC caffeproto) # note, crucial to prepend!
 
@@ -25,29 +43,13 @@ caffe_pickup_caffe_sources(${PROJECT_SOURCE_DIR})
 # target_compile_definitions
 if(MSVC AND NOT BUILD_SHARED_LIBS)
   set(_caffe_static_compile_def -DCAFFE_BUILDING_STATIC_LIB)
+  set(_caffe_static_interface_compile_def -DCAFFE_STATIC_LIB)
 endif()
 
 if(HAVE_CUDA)
-  # collect any compile definitions from imported targets. This important so that
-  # preprocessor macros such as GLOG_NO_ABBREVIATED_SEVERITIES are defined.
-  # this is required since CUDA macros do not honor the INTERFACE_COMPILE_DEFINITIONS
-  unset(__cuda_options)
-  foreach(__lib ${Caffe_LINKER_LIBS})
-    if(TARGET ${__lib})
-      get_target_property(__interface_compile_definitions ${__lib} INTERFACE_COMPILE_DEFINITIONS)
-      if(__interface_compile_definitions)
-        foreach(__def ${__interface_compile_definitions})
-          # espace any parentheses because they are failing the build
-          # see cmake issue https://cmake.org/Bug/view.php?id=16065
-          string(REPLACE "(" "\\\(" __def_escaped ${__def})
-          string(REPLACE ")" "\\\)" __def_escaped ${__def_escaped})
-          # add the required -D flag
-          list(APPEND __cuda_options "-D${__def_escaped}")
-        endforeach()
-      endif()
-    endif()
-  endforeach()
-  list(APPEND __cuda_options ${_caffe_static_compile_def})
+  list(APPEND __cuda_options ${caffe_interface_compile_options}
+                             ${_caffe_static_compile_def}
+                             ${_caffe_static_interface_compile_def})
   # add the required definitions
   add_definitions(${__cuda_options})
   # it seems that using the OPTIONS argument like:
@@ -81,6 +83,7 @@ if(MSVC AND BUILD_SHARED_LIBS)
   # and https://cmake.org/cmake/help/v3.5/prop_tgt/WINDOWS_EXPORT_ALL_SYMBOLS.html
   # for details.
   set_target_properties(caffe PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+  # this should be handle by caffe/export.hpp but some files don't include caffe/common.hpp
   target_compile_definitions(caffe PRIVATE -DCAFFE_EXPORT=__declspec\(dllexport\)
                                    INTERFACE -DCAFFE_EXPORT=__declspec\(dllimport\))
 elseif(MSVC AND NOT BUILD_SHARED_LIBS)
@@ -92,7 +95,8 @@ elseif(MSVC AND NOT BUILD_SHARED_LIBS)
   set(CAFFE_INCLUDE_SYMBOLS "#include \"caffe/${_name}\"")
   # definition needed to include CMake generated files
   target_compile_definitions(caffe PRIVATE ${_caffe_static_compile_def}
-                                   PUBLIC -DCMAKE_WINDOWS_BUILD)
+                                   PUBLIC ${_caffe_static_compile_def})
+  # this should be handle by caffe/export.hpp but some files don't include caffe/common.hpp
   target_compile_definitions(caffe PUBLIC -DCAFFE_EXPORT)
 endif()
 if(MSVC)

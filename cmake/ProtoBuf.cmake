@@ -88,7 +88,7 @@ function(caffe_protobuf_generate_cpp_py output_dir srcs_var hdrs_var python_var)
     list(APPEND ${hdrs_var} "${output_dir}/${fil_we}.pb.h")
     list(APPEND ${python_var} "${output_dir}/${fil_we}_pb2.py")
 
-    if(BUILD_SHARED_LIBS)
+    if(MSVC AND BUILD_SHARED_LIBS)
       set(output_dir_opt --cpp_out=dllexport_decl=CAFFE_EXPORT:${output_dir})
     else()
       set(output_dir_opt --cpp_out ${output_dir})
