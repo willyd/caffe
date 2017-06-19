@@ -25,7 +25,7 @@ cmake -GNinja ^
       -DBUILD_python_layer:BOOL=OFF ^
       -DBUILD_python:BOOL=OFF ^
       -DBUILD_matlab:BOOL=OFF ^
-      -DCOPY_PREREQUISITES:BOOL=OFF ^
+      -DCOPY_PREREQUISITES:BOOL=ON ^
       -DINSTALL_PREREQUISITES:BOOL=OFF ^
       -DUSE_OPENMP:BOOL=OFF ^
       -DBLAS=Open ^
