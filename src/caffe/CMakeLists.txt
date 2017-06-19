@@ -119,8 +119,12 @@ install(TARGETS caffe EXPORT CaffeTargets
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-if(MSVC AND NOT BUILD_SHARED_LIBS)
-  install(FILES ${caffe_export_hdr} ${caffe_symbols_hdr} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/caffe)
+if(MSVC)
+  set(caffe_additional_hdr ${caffe_export_hdr})
+  if(NOT BUILD_SHARED_LIBS)
+    list(APPEND caffe_additional_hdr ${caffe_symbols_hdr})
+  endif()
+  install(FILES ${caffe_additional_hdr} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/caffe)
 endif()
 
 file(WRITE ${PROJECT_BINARY_DIR}/__init__.py)
