@@ -95,7 +95,7 @@ elseif(MSVC AND NOT BUILD_SHARED_LIBS)
   set(CAFFE_INCLUDE_SYMBOLS "#include \"caffe/${_name}\"")
   # definition needed to include CMake generated files
   target_compile_definitions(caffe PRIVATE ${_caffe_static_compile_def}
-                                   PUBLIC ${_caffe_static_compile_def})
+                                   PUBLIC ${_caffe_static_interface_compile_def})
   # this should be handle by caffe/export.hpp but some files don't include caffe/common.hpp
   target_compile_definitions(caffe PUBLIC -DCAFFE_EXPORT)
 endif()

@@ -8,12 +8,14 @@
 #endif
 
 #if defined(_MSC_VER)
-  #if defined(CAFFE_STATIC_LIB)
-    #define CAFFE_EXPORT
-  #elif defined(caffe_EXPORTS)
-    #define CAFFE_EXPORT __declspec(dllexport)
-  #else
-    #define CAFFE_EXPORT __declspec(dllimport)
+  #if !defined(CAFFE_EXPORT)
+    #if defined(CAFFE_STATIC_LIB)
+      #define CAFFE_EXPORT
+    #elif defined(caffe_EXPORTS)
+      #define CAFFE_EXPORT __declspec(dllexport)
+    #else
+      #define CAFFE_EXPORT __declspec(dllimport)
+    #endif
   #endif
 #else
   #define CAFFE_EXPORT
