@@ -3,6 +3,8 @@
 if NOT EXIST build mkdir build
 pushd build
 
+REM vcpkg export boost lmdb protobuf opencv hdf5 gflags glog openblas
+
 set vcpkg_root=C:\Users\guillaume\work\vcpkg
 
 set CMAKE_CONFIG=Release

@@ -49,8 +49,7 @@ endif()
 if(HAVE_CUDA)
   list(APPEND __cuda_options ${caffe_interface_compile_options}
                              ${_caffe_static_compile_def}
-                             ${_caffe_static_interface_compile_def}
-                             -DPROTOBUF_CONSTEXPR=constexpr)
+                             ${_caffe_static_interface_compile_def})
   # add the required definitions
   add_definitions(${__cuda_options})
   # it seems that using the OPTIONS argument like:
