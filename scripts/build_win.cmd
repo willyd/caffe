@@ -1,18 +1,6 @@
 @echo off
 @setlocal EnableDelayedExpansion
 
-if NOT DEFINED VCPKG_DIR set VCPKG_DIR=%USERPROFILE%\.caffe\dependencies\vcpkg-export-20171214-204257
-set VCPKG_TOOLCHAIN=%VCPKG_DIR%\scripts\buildsystems\vcpkg.cmake
-if NOT EXIST "%VCPKG_TOOLCHAIN%" (
-    echo calling cmake
-    cmake -P "%~dp0\windows_download_dependencies.cmake" || exit /b 1
-)
-if NOT EXIST "%VCPKG_TOOLCHAIN%" (
-    echo Cannot find tool chain file "%VCPKG_TOOLCHAIN%"
-    set ERRORLEVEL=1
-    goto :EOF
-)
-
 if NOT DEFINED MSVC_VERSION set MSVC_VERSION=15
 if NOT DEFINED WITH_NINJA set WITH_NINJA=1
 if NOT DEFINED CPU_ONLY set CPU_ONLY=1
@@ -28,6 +16,36 @@ if NOT DEFINED PYTHON_EXE set PYTHON_EXE=python
 if NOT DEFINED RUN_TESTS set RUN_TESTS=0
 if NOT DEFINED RUN_LINT set RUN_LINT=0
 if NOT DEFINED RUN_INSTALL set RUN_INSTALL=0
+
+if NOT DEFINED VS2017INSTALLDIR (
+    set VS2017INSTALLDIR=%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community
+)
+
+if "%MSVC_VERSION%"=="15" (
+    set CMAKE_GENERATOR=Visual Studio 15 2017 Win64
+    echo Calling "!VS2017INSTALLDIR!\VC\Auxiliary\Build\vcvarsall.bat" x64
+    call "!VS2017INSTALLDIR!\VC\Auxiliary\Build\vcvarsall.bat" x64
+)
+if "%MSVC_VERSION%"=="14" (
+    set CMAKE_GENERATOR=Visual Studio 14 2015 Win64
+    echo Calling "!VS140COMNTOOLS!..\..\VC\vcvarsall.bat" amd64
+    call "!VS140COMNTOOLS!..\..\VC\vcvarsall.bat" amd64
+)
+if %WITH_NINJA%==1 (
+    set CMAKE_GENERATOR=Ninja
+)
+
+if NOT DEFINED VCPKG_DIR set VCPKG_DIR=%USERPROFILE%\.caffe\dependencies\vcpkg-export-20171214-204257
+set VCPKG_TOOLCHAIN=%VCPKG_DIR%\scripts\buildsystems\vcpkg.cmake
+if NOT EXIST "%VCPKG_TOOLCHAIN%" (
+    echo calling cmake
+    cmake -P "%~dp0\windows_download_dependencies.cmake" || exit /b 1
+)
+if NOT EXIST "%VCPKG_TOOLCHAIN%" (
+    echo Cannot find tool chain file "%VCPKG_TOOLCHAIN%"
+    set ERRORLEVEL=1
+    goto :EOF
+)
 
 REM REM Default values
 REM if DEFINED APPVEYOR (
@@ -82,24 +100,6 @@ REM )
 REM Set the appropriate CMake generator
 REM Use the exclamation mark ! below to delay the
 REM expansion of CMAKE_GENERATOR
-
-if NOT DEFINED VS2017INSTALLDIR (
-    set VS2017INSTALLDIR="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community"
-)
-
-if "%MSVC_VERSION%"=="15" (
-    set CMAKE_GENERATOR=Visual Studio 15 2017 Win64
-    echo Calling "!VS2017INSTALLDIR!\VC\Auxiliary\Build\vcvarsall.bat" x64
-    call "!VS2017INSTALLDIR!\VC\Auxiliary\Build\vcvarsall.bat" x64
-)
-if "%MSVC_VERSION%"=="14" (
-    set CMAKE_GENERATOR=Visual Studio 14 2015 Win64
-    echo Calling "!VS140COMNTOOLS!..\..\VC\vcvarsall.bat" amd64
-    call "!VS140COMNTOOLS!..\..\VC\vcvarsall.bat" amd64
-)
-if %WITH_NINJA%==1 (
-    set CMAKE_GENERATOR=Ninja
-)
 
 if DEFINED APPVEYOR (
     set CONDA_ROOT=C:\Miniconda36-x64
