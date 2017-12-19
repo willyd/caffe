@@ -5,7 +5,11 @@ set(Caffe_DEFINITIONS "")
 set(Caffe_COMPILE_OPTIONS "")
 
 # ---[ Boost
-find_package(Boost 1.54 REQUIRED COMPONENTS system thread filesystem)
+list(APPEND BOOST_COMPONENTS system thread filesystem)
+if(MSVC)
+  list(APPEND BOOST_COMPONENTS atomic chrono date_time)
+endif()
+find_package(Boost 1.54 REQUIRED COMPONENTS ${BOOST_COMPONENTS})
 list(APPEND Caffe_INCLUDE_DIRS PUBLIC ${Boost_INCLUDE_DIRS})
 list(APPEND Caffe_DEFINITIONS PUBLIC -DBOOST_ALL_NO_LIB)
 list(APPEND Caffe_LINKER_LIBS PUBLIC ${Boost_LIBRARIES})

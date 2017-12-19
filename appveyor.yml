@@ -2,81 +2,11 @@ version: 1.0.{build}
 clone_folder: c:\projects\caffe
 environment:
   matrix:
-    - MSVC_VERSION: 14
-      WITH_NINJA: 0
+    - MSVC_VERSION: 15
+      WITH_NINJA: 1
       CMAKE_CONFIG: Release
-      CMAKE_BUILD_SHARED_LIBS: 0
+      CMAKE_BUILD_SHARED_LIBS: 1
       PYTHON_VERSION: 3
-      WITH_CUDA: 0
-
-    - MSVC_VERSION: 14
-      WITH_NINJA: 0
-      CMAKE_CONFIG: Release
-      CMAKE_BUILD_SHARED_LIBS: 0
-      PYTHON_VERSION: 2
-      WITH_CUDA: 0
-
-    - MSVC_VERSION: 14
-      WITH_NINJA: 0
-      CMAKE_CONFIG: Debug
-      CMAKE_BUILD_SHARED_LIBS: 0
-      PYTHON_VERSION: 2
-      WITH_CUDA: 0
-
-    - MSVC_VERSION: 14
-      WITH_NINJA: 1
-      CMAKE_CONFIG: Release
-      CMAKE_BUILD_SHARED_LIBS: 0
-      PYTHON_VERSION: 2
-      WITH_CUDA: 0
-
-    - MSVC_VERSION: 14
-      WITH_NINJA: 1
-      CMAKE_CONFIG: Debug
-      CMAKE_BUILD_SHARED_LIBS: 0
-      PYTHON_VERSION: 2
-      WITH_CUDA: 0
-      
-    - MSVC_VERSION: 14
-      WITH_NINJA: 1
-      CMAKE_CONFIG: Release
-      CMAKE_BUILD_SHARED_LIBS: 0
-      PYTHON_VERSION: 2
-      WITH_CUDA: 1
-      
-    - MSVC_VERSION: 14
-      WITH_NINJA: 1
-      CMAKE_CONFIG: Release
-      CMAKE_BUILD_SHARED_LIBS: 0
-      PYTHON_VERSION: 3
-      WITH_CUDA: 1        
-
-    - MSVC_VERSION: 12
-      WITH_NINJA: 0
-      CMAKE_CONFIG: Release
-      CMAKE_BUILD_SHARED_LIBS: 0
-      PYTHON_VERSION: 2
-      WITH_CUDA: 0
-
-    - MSVC_VERSION: 12
-      WITH_NINJA: 0
-      CMAKE_CONFIG: Debug
-      CMAKE_BUILD_SHARED_LIBS: 0
-      PYTHON_VERSION: 2
-      WITH_CUDA: 0
-
-    - MSVC_VERSION: 12
-      WITH_NINJA: 1
-      CMAKE_CONFIG: Release
-      CMAKE_BUILD_SHARED_LIBS: 0
-      PYTHON_VERSION: 2
-      WITH_CUDA: 0
-
-    - MSVC_VERSION: 12
-      WITH_NINJA: 1
-      CMAKE_CONFIG: Debug
-      CMAKE_BUILD_SHARED_LIBS: 0
-      PYTHON_VERSION: 2
       WITH_CUDA: 0
 
 build_script:
