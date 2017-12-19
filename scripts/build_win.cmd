@@ -13,14 +13,6 @@ if NOT EXIST "%VCPKG_TOOLCHAIN%" (
     goto :EOF
 )
 
-if DEFINED APPVEYOR (
-    set CONDA_ROOT=C:\Miniconda36-x64
-    set PATH=!CONDA_ROOT!;!CONDA_ROOT!\Scripts;!CONDA_ROOT!\Library\bin;!PATH!
-    conda config --add channels conda-forge
-    conda config --add channels defaults
-    conda install --yes cmake ninja numpy scipy protobuf==3.3.0 six scikit-image pyyaml pydotplus graphviz
-)
-
 if NOT DEFINED MSVC_VERSION set MSVC_VERSION=15
 if NOT DEFINED WITH_NINJA set WITH_NINJA=1
 if NOT DEFINED CPU_ONLY set CPU_ONLY=1
@@ -107,6 +99,14 @@ if "%MSVC_VERSION%"=="14" (
 )
 if %WITH_NINJA%==1 (
     set CMAKE_GENERATOR=Ninja
+)
+
+if DEFINED APPVEYOR (
+    set CONDA_ROOT=C:\Miniconda36-x64
+    set PATH=!CONDA_ROOT!;!CONDA_ROOT!\Scripts;!CONDA_ROOT!\Library\bin;!PATH!
+    conda config --add channels conda-forge
+    conda config --add channels defaults
+    conda install --yes cmake ninja numpy scipy protobuf==3.3.0 six scikit-image pyyaml pydotplus graphviz
 )
 
 echo INFO: ============================================================
