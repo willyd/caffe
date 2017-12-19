@@ -92,7 +92,7 @@ REM Use the exclamation mark ! below to delay the
 REM expansion of CMAKE_GENERATOR
 
 if NOT DEFINED VS2017INSTALLDIR (
-    set VS2017INSTALLDIR=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community
+    set VS2017INSTALLDIR="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community"
 )
 
 if "%MSVC_VERSION%"=="15" (
