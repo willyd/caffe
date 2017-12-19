@@ -16,6 +16,8 @@ if NOT EXIST "%VCPKG_TOOLCHAIN%" (
 if DEFINED APPVEYOR (
     set CONDA_ROOT=C:\Miniconda36-x64
     set PATH=!CONDA_ROOT!;!CONDA_ROOT!\Scripts;!CONDA_ROOT!\Library\bin;!PATH!
+    conda config --add channels conda-forge
+    conda config --add channels defaults
     conda install --yes cmake ninja numpy scipy protobuf==3.3.0 six scikit-image pyyaml pydotplus graphviz
 )
 
