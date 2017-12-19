@@ -18,13 +18,18 @@ if NOT DEFINED RUN_LINT set RUN_LINT=0
 if NOT DEFINED RUN_INSTALL set RUN_INSTALL=0
 
 if NOT DEFINED VS2017INSTALLDIR (
-    set VS2017INSTALLDIR=%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community
+    set VS2017INSTALLDIR=
 )
 
 if "%MSVC_VERSION%"=="15" (
     set CMAKE_GENERATOR=Visual Studio 15 2017 Win64
-    echo Calling "!VS2017INSTALLDIR!\VC\Auxiliary\Build\vcvarsall.bat" x64
-    call "!VS2017INSTALLDIR!\VC\Auxiliary\Build\vcvarsall.bat" x64
+    if NOT DEFINED VS2017INSTALLDIR (
+        echo Calling "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
+    ) else (
+        echo Calling "!VS2017INSTALLDIR!\VC\Auxiliary\Build\vcvarsall.bat" x64
+        call "!VS2017INSTALLDIR!\VC\Auxiliary\Build\vcvarsall.bat" x64
+    )
 )
 if "%MSVC_VERSION%"=="14" (
     set CMAKE_GENERATOR=Visual Studio 14 2015 Win64
