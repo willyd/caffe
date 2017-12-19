@@ -108,7 +108,7 @@ REM expansion of CMAKE_GENERATOR
 
 if DEFINED APPVEYOR (
     set CONDA_ROOT=C:\Miniconda36-x64
-    set PATH=!CONDA_ROOT!;!CONDA_ROOT!\Scripts;!CONDA_ROOT!\Library\bin;!PATH!
+    set PATH=!CONDA_ROOT!;!CONDA_ROOT!\Library\mingw-w64\bin;!CONDA_ROOT!\Scripts;!CONDA_ROOT!\Library\bin;!PATH!
     conda config --add channels conda-forge
     conda config --add channels defaults
     conda install --yes cmake ninja
@@ -150,9 +150,6 @@ if !RUN_TESTS! EQU 1 (
 set BUILD_DIR=%~dp0\..\build
 if NOT EXIST "%BUILD_DIR%" mkdir "%BUILD_DIR%"
 pushd "%BUILD_DIR%"
-
-cl.exe
-ninja.exe --version
 
 REM Configure using cmake and using the caffe-builder dependencies
 REM Add -DCUDNN_ROOT=C:/Projects/caffe/cudnn-8.0-windows10-x64-v5.1/cuda ^
