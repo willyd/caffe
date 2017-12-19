@@ -1,5 +1,6 @@
 version: 1.0.{build}
 clone_folder: c:\projects\caffe
+image: Visual Studio 2017
 environment:
   matrix:
     - MSVC_VERSION: 15
