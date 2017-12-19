@@ -91,12 +91,18 @@ REM Set the appropriate CMake generator
 REM Use the exclamation mark ! below to delay the
 REM expansion of CMAKE_GENERATOR
 
+if NOT DEFINED VS2017INSTALLDIR (
+    set VS2017INSTALLDIR=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community
+)
+
 if "%MSVC_VERSION%"=="15" (
     set CMAKE_GENERATOR=Visual Studio 15 2017 Win64
-    call "!VS2017Installdir!\VC\Auxiliary\Build\vcvarsall.bat" x64
+    echo Calling "!VS2017INSTALLDIR!\VC\Auxiliary\Build\vcvarsall.bat" x64
+    call "!VS2017INSTALLDIR!\VC\Auxiliary\Build\vcvarsall.bat" x64
 )
 if "%MSVC_VERSION%"=="14" (
     set CMAKE_GENERATOR=Visual Studio 14 2015 Win64
+    echo Calling "!VS140COMNTOOLS!..\..\VC\vcvarsall.bat" amd64
     call "!VS140COMNTOOLS!..\..\VC\vcvarsall.bat" amd64
 )
 if %WITH_NINJA%==1 (
