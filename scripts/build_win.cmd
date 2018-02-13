@@ -13,13 +13,9 @@ if NOT DEFINED BUILD_PYTHON set BUILD_PYTHON=1
 if NOT DEFINED BUILD_PYTHON_LAYER set BUILD_PYTHON_LAYER=1
 if NOT DEFINED BUILD_MATLAB set BUILD_MATLAB=0
 if NOT DEFINED PYTHON_EXE set PYTHON_EXE=python
-if NOT DEFINED RUN_TESTS set RUN_TESTS=0
-if NOT DEFINED RUN_LINT set RUN_LINT=0
+if NOT DEFINED RUN_TESTS set RUN_TESTS=1
+if NOT DEFINED RUN_LINT set RUN_LINT=1
 if NOT DEFINED RUN_INSTALL set RUN_INSTALL=0
-
-if NOT DEFINED VS2017INSTALLDIR (
-    set VS2017INSTALLDIR=
-)
 
 if "%MSVC_VERSION%"=="15" (
     set CMAKE_GENERATOR=Visual Studio 15 2017 Win64
@@ -51,60 +47,6 @@ if NOT EXIST "%VCPKG_TOOLCHAIN%" (
     set ERRORLEVEL=1
     goto :EOF
 )
-
-REM REM Default values
-REM if DEFINED APPVEYOR (
-REM     echo Setting Appveyor defaults
-REM     REM Set python 2.7 with conda as the default python
-REM     if !PYTHON_VERSION! EQU 2 (
-REM         set CONDA_ROOT=C:\Miniconda-x64
-REM     )
-REM     REM Set python 3.5 with conda as the default python
-REM     if !PYTHON_VERSION! EQU 3 (
-REM         set CONDA_ROOT=C:\Miniconda35-x64
-REM     )
-REM     set PATH=!CONDA_ROOT!;!CONDA_ROOT!\Scripts;!CONDA_ROOT!\Library\bin;!PATH!
-
-REM     REM Check that we have the right python version
-REM     !PYTHON_EXE! --version
-REM     REM Add the required channels
-REM     conda config --add channels conda-forge
-REM     conda config --add channels willyd
-REM     REM Update conda
-REM     conda update conda -y
-REM     REM Download other required packages
-REM     conda install --yes cmake ninja numpy scipy protobuf==3.1.0 six scikit-image pyyaml pydotplus graphviz
-
-REM     if ERRORLEVEL 1  (
-REM       echo ERROR: Conda update or install failed
-REM       exit /b 1
-REM     )
-
-REM     REM Install cuda and disable tests if needed
-REM     if !WITH_CUDA! == 1 (
-REM         call %~dp0\appveyor\appveyor_install_cuda.cmd
-REM         set CPU_ONLY=0
-REM         set RUN_TESTS=0
-REM         set USE_NCCL=1
-REM     ) else (
-REM         set CPU_ONLY=1
-REM     )
-
-REM     REM Disable the tests in debug config
-REM     if "%CMAKE_CONFIG%" == "Debug" (
-REM         echo Disabling tests on appveyor with config == %CMAKE_CONFIG%
-REM         set RUN_TESTS=0
-REM     )
-
-REM     REM Disable linting with python 3 until we find why the script fails
-REM     if !PYTHON_VERSION! EQU 3 (
-REM         set RUN_LINT=0
-REM     )
-REM )
-
-REM Set the appropriate CMake generator
-REM Use the exclamation mark ! below to delay the
-REM expansion of CMAKE_GENERATOR
 
 if DEFINED APPVEYOR (
     set CONDA_ROOT=C:\Miniconda36-x64
