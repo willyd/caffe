@@ -10,7 +10,6 @@ environment:
       PYTHON_VERSION: 3
       WITH_CUDA: 0
 
-  matrix:
     - MSVC_VERSION: 15
       WITH_NINJA: 1
       CMAKE_CONFIG: Release
