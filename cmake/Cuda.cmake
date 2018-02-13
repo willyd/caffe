@@ -41,7 +41,7 @@ function(caffe_detect_installed_gpus out_variable)
       # breaks in the cache
       string(REGEX MATCH "([1-9].[0-9])" __nvcc_out "${__nvcc_out}")
       string(REPLACE "2.1" "2.1(2.0)" __nvcc_out "${__nvcc_out}")
-      set(CUDA_gpu_detect_output ${__nvcc_out} CACHE INTERNAL "Returned GPU architetures from caffe_detect_gpus tool" FORCE)      
+      set(CUDA_gpu_detect_output ${__nvcc_out} CACHE INTERNAL "Returned GPU architetures from caffe_detect_gpus tool" FORCE)
     endif()
   endif()
 
@@ -159,7 +159,9 @@ macro(caffe_cuda_compile objlist_variable)
   endif()
 
   if(MSVC)
-    list(APPEND CUDA_NVCC_FLAGS -Xcompiler -wd4251)
+    foreach(__warning ${MSVC_DISABLED_WARNINGS})
+      list(APPEND CUDA_NVCC_FLAGS -Xcompiler ${__warning})
+    endforeach()
   endif()
 
   cuda_compile(cuda_objcs ${ARGN})
@@ -184,12 +186,12 @@ function(detect_cuDNN)
             PATHS ${CUDNN_ROOT} $ENV{CUDNN_ROOT} ${CUDA_TOOLKIT_INCLUDE}
             PATH_SUFFIXES include
             DOC "Path to cuDNN include directory." )
-           
+
   unset(_path_suffixes)
   if(MSVC AND ${CMAKE_SIZEOF_VOID_P} EQUAL 8)
     set(_path_suffixes PATH_SUFFIXES lib/x64)
   else()
-    set(_path_suffixes PATH_SUFFIXES lib/Win32)    
+    set(_path_suffixes PATH_SUFFIXES lib/Win32)
   endif()
 
   # dynamic libs have different suffix in mac and linux
@@ -206,7 +208,7 @@ function(detect_cuDNN)
    PATHS ${CUDNN_ROOT} $ENV{CUDNN_ROOT} ${CUDNN_INCLUDE} ${__libpath_hist} ${__libpath_hist}/../lib
    ${_path_suffixes}
    DOC "Path to cuDNN library.")
-  
+
   if(CUDNN_INCLUDE AND CUDNN_LIBRARY)
     set(HAVE_CUDNN  TRUE PARENT_SCOPE)
     set(CUDNN_FOUND TRUE PARENT_SCOPE)

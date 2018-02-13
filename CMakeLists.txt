@@ -34,12 +34,7 @@ include(cmake/TargetResolvePrerequesites.cmake)
 caffe_option(CPU_ONLY  "Build Caffe without CUDA support" OFF) # TODO: rename to USE_CUDA
 caffe_option(USE_CUDNN "Build Caffe with cuDNN library support" ON IF NOT CPU_ONLY)
 caffe_option(USE_NCCL "Build Caffe with NCCL library support" OFF)
-if(MSVC)
-  # default to static libs
-  caffe_option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
-else()
-  caffe_option(BUILD_SHARED_LIBS "Build shared libraries" ON)
-endif()
+caffe_option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 caffe_option(BUILD_python "Build Python wrapper" ON)
 set(python_version "2" CACHE STRING "Specify which Python version to use")
 caffe_option(BUILD_matlab "Build Matlab wrapper" OFF)
@@ -59,16 +54,17 @@ if(MSVC_VERSION GREATER 1900 AND NOT CPU_ONLY)
   set(CUDA_HOST_COMPILER "${CMAKE_CXX_COMPILER}" CACHE FILEPATH "Host side compiler used by NVCC")
 endif()
 
+if(MSVC)
+  set(MSVC_DISABLED_WARNINGS -wd4251 -wd4146 -wd4661 -wd4247 -wd4267 -wd4244 -wd4305)
+  add_compile_options(${MSVC_DISABLED_WARNINGS})
+endif()
+
 # ---[ Dependencies
 include(cmake/Dependencies.cmake)
 
 # ---[ Flags
 if(UNIX OR APPLE)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wall")
-endif()
-
-if(MSVC)
-  add_compile_options(/wd4251)
 endif()
 
 caffe_set_caffe_link()
