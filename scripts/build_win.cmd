@@ -84,15 +84,6 @@ echo INFO: RUN_LINT                   = !RUN_LINT!
 echo INFO: RUN_INSTALL                = !RUN_INSTALL!
 echo INFO: ============================================================
 
-REM Build and exectute the tests
-REM Do not run the tests with shared library
-if !RUN_TESTS! EQU 1 (
-    if %CMAKE_BUILD_SHARED_LIBS% EQU 1 (
-        echo WARNING: Disabling tests with shared library build
-        set RUN_TESTS=0
-    )
-)
-
 set BUILD_DIR=%~dp0\..\build
 if NOT EXIST "%BUILD_DIR%" mkdir "%BUILD_DIR%"
 pushd "%BUILD_DIR%"
