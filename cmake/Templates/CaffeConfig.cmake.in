@@ -76,6 +76,13 @@ endif()
 # List of IMPORTED libs created by CaffeTargets.cmake
 # These targets already specify all needed definitions and include pathes
 set(Caffe_LIBRARIES caffe)
+get_target_property(Caffe_LIBRARY_TYPE caffe TYPE)
+if("${Caffe_LIBRARY_TYPE}" STREQUAL "STATIC_LIBRARY")
+  if(MSVC)
+    # add the wholearchive flag when caffe is statically linked
+    list(APPEND Caffe_LIBRARIES -WHOLEARCHIVE:$<TARGET_FILE_NAME:caffe>)
+  endif()
+endif()
 
 # Cuda support variables
 set(Caffe_CPU_ONLY @CPU_ONLY@)

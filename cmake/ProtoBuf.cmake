@@ -88,11 +88,8 @@ function(caffe_protobuf_generate_cpp_py output_dir srcs_var hdrs_var python_var)
     list(APPEND ${hdrs_var} "${output_dir}/${fil_we}.pb.h")
     list(APPEND ${python_var} "${output_dir}/${fil_we}_pb2.py")
 
-    if(MSVC AND BUILD_SHARED_LIBS)
-      set(output_dir_opt --cpp_out=dllexport_decl=CAFFE_EXPORT:${output_dir})
-    else()
-      set(output_dir_opt --cpp_out ${output_dir})
-    endif()
+
+    set(output_dir_opt --cpp_out=dllexport_decl=CAFFE_EXPORT:${output_dir})
     if(MSVC)
       # Remove PROTOBUF_CONSTEXPR otherwise nvcc will fail to compile caffe.pb.h
       set(_proto_h ${output_dir}/${fil_we}.pb.h)

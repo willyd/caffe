@@ -28,7 +28,6 @@ include(cmake/Targets.cmake)
 include(cmake/Misc.cmake)
 include(cmake/Summary.cmake)
 include(cmake/ConfigGen.cmake)
-include(cmake/WindowsCreateLinkHeader.cmake)
 include(cmake/TargetResolvePrerequesites.cmake)
 
 # ---[ Options
@@ -51,11 +50,14 @@ caffe_option(USE_LEVELDB "Build with levelDB" ON)
 caffe_option(USE_LMDB "Build with lmdb" ON)
 caffe_option(ALLOW_LMDB_NOLOCK "Allow MDB_NOLOCK when reading LMDB files (only if necessary)" OFF)
 caffe_option(USE_OPENMP "Link with OpenMP (when your BLAS wants OpenMP and you get linker errors)" OFF)
+caffe_option(USE_HDF5_SHARED_LIBS "Link with shared libraries or not" ${BUILD_SHARED_LIBS})
 caffe_option(COPY_PREREQUISITES "Copy the prerequisites next to each executable or shared library directory" ON IF MSVC)
 caffe_option(INSTALL_PREREQUISITES "Install the prerequisites next to each executable or shared library directory" ON IF MSVC)
 
-# ---[ Prebuild dependencies on windows
-include(cmake/WindowsDownloadPrebuiltDependencies.cmake)
+if(MSVC_VERSION GREATER 1900 AND NOT CPU_ONLY)
+  # Required for CUDA to work with VS2017
+  set(CUDA_HOST_COMPILER "${CMAKE_CXX_COMPILER}" CACHE FILEPATH "Host side compiler used by NVCC")
+endif()
 
 # ---[ Dependencies
 include(cmake/Dependencies.cmake)
@@ -63,6 +65,10 @@ include(cmake/Dependencies.cmake)
 # ---[ Flags
 if(UNIX OR APPLE)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wall")
+endif()
+
+if(MSVC)
+  add_compile_options(/wd4251)
 endif()
 
 caffe_set_caffe_link()
