@@ -40,7 +40,7 @@ if %WITH_NINJA%==1 (
     set CMAKE_GENERATOR=Ninja
 )
 
-if NOT DEFINED VCPKG_DIR set VCPKG_DIR=%USERPROFILE%\.caffe\dependencies\vcpkg-export-20171219-000540
+if NOT DEFINED VCPKG_DIR set VCPKG_DIR=%USERPROFILE%\.caffe\dependencies\vcpkg-export-20180213-222527
 set VCPKG_TOOLCHAIN=%VCPKG_DIR%\scripts\buildsystems\vcpkg.cmake
 if NOT EXIST "%VCPKG_TOOLCHAIN%" (
     echo calling cmake

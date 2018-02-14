@@ -65,6 +65,7 @@ if(MSVC)
       -wd4305
       -wd4018 # avoid signed/unsigned mismatched warnings
       -wd4005 # avoid warnings about 'PROTOBUF_USE_DLLS': macro redefinition
+      -wd4996 # posix deprecation warnings
       )
   add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE)
   add_compile_options(${MSVC_DISABLED_WARNINGS})

@@ -1,7 +1,7 @@
 set(DEPENDENCIES_FILE_EXT .7z)
-set(DEPENDENCIES_NAME vcpkg-export-20171219-000540)
-set(DEPENDENCIES_URL https://github.com/willyd/vcpkg/releases/download/v1.1/${DEPENDENCIES_NAME}.7z)
-set(DEPENDENCIES_MD5 fa972de56f810bc3d048f3d9e2914964)
+set(DEPENDENCIES_NAME vcpkg-export-20180213-222527)
+set(DEPENDENCIES_URL https://github.com/willyd/vcpkg/releases/download/v1.2/${DEPENDENCIES_NAME}.7z)
+set(DEPENDENCIES_MD5 f9730b56c4581c6a388f354836bce232)
 
 message(STATUS "Downloading caffe dependencies")
 file(TO_CMAKE_PATH $ENV{USERPROFILE} USERPROFILE_DIR)
