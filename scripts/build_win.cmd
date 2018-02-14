@@ -55,12 +55,12 @@ if NOT EXIST "%VCPKG_TOOLCHAIN%" (
 if DEFINED APPVEYOR (
     set CONDA_ROOT=C:\Miniconda36-x64
     set PATH=!CONDA_ROOT!;!CONDA_ROOT!\Library\mingw-w64\bin;!CONDA_ROOT!\Scripts;!CONDA_ROOT!\Library\bin;!PATH!
-    conda config --add channels conda-forge
-    conda config --add channels defaults
-    conda install --yes cmake ninja
-    cmake --version
-    ninja --version
-    conda install --yes numpy scipy protobuf==3.3.0 six scikit-image pyyaml pydotplus graphviz
+    call conda config --add channels conda-forge
+    call conda config --add channels defaults
+    call conda install --yes cmake ninja
+    call cmake --version
+    call ninja --version
+    call conda install --yes numpy scipy protobuf==3.5.0 six scikit-image pyyaml pydotplus graphviz
 )
 
 echo INFO: ============================================================
@@ -101,9 +101,8 @@ cmake -G"!CMAKE_GENERATOR!" ^
       -DBUILD_python_layer:BOOL=%BUILD_PYTHON_LAYER% ^
       -DBUILD_matlab:BOOL=%BUILD_MATLAB% ^
       -DCPU_ONLY:BOOL=!CPU_ONLY! ^
-      -DCOPY_PREREQUISITES:BOOL=0 ^
+      -DCOPY_PREREQUISITES:BOOL=1 ^
       -DINSTALL_PREREQUISITES:BOOL=0 ^
-      -DUSE_PREBUILT_DEPENDENCIES=OFF ^
       -DUSE_NCCL:BOOL=!USE_NCCL! ^
       -DCUDA_ARCH_NAME:STRING=%CUDA_ARCH_NAME% ^
       -DUSE_HDF5_SHARED_LIBS=ON ^

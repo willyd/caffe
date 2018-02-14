@@ -55,7 +55,18 @@ if(MSVC_VERSION GREATER 1900 AND NOT CPU_ONLY)
 endif()
 
 if(MSVC)
-  set(MSVC_DISABLED_WARNINGS -wd4251 -wd4146 -wd4661 -wd4247 -wd4267 -wd4244 -wd4305)
+  set(MSVC_DISABLED_WARNINGS
+      -wd4251
+      -wd4146
+      -wd4661
+      -wd4247
+      -wd4267
+      -wd4244
+      -wd4305
+      -wd4018 # avoid signed/unsigned mismatched warnings
+      -wd4005 # avoid warnings about 'PROTOBUF_USE_DLLS': macro redefinition
+      )
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE)
   add_compile_options(${MSVC_DISABLED_WARNINGS})
 endif()
 
