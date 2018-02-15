@@ -32,8 +32,8 @@ target_compile_definitions(caffeproto ${Caffe_EXPORT_DEFINITIONS}
 caffe_pickup_caffe_sources(${PROJECT_SOURCE_DIR})
 
 if(HAVE_CUDA)
-  list(APPEND __cuda_options ${Caffe_COMPILE_DEFS}
-                             ${Caffe_EXPORT_DEFINITION})
+  set(__cuda_options ${Caffe_COMPILE_DEFS}
+                     ${Caffe_EXPORT_DEFINITION})
   # add the required definitions
   add_definitions(${__cuda_options})
   # it seems that using the OPTIONS argument like:
