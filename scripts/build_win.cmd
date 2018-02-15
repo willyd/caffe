@@ -55,6 +55,8 @@ if NOT EXIST "%VCPKG_TOOLCHAIN%" (
 if DEFINED APPVEYOR (
     if "%WITH_CUDA%"=="1" (
         call "%~dp0\appveyor\appveyor_install_cuda.cmd"
+        REM cannot run tests when using CUDA
+        set RUN_TESTS=0
     )
     set CONDA_ROOT=C:\Miniconda36-x64
     set PATH=!CONDA_ROOT!;!CONDA_ROOT!\Library\mingw-w64\bin;!CONDA_ROOT!\Scripts;!CONDA_ROOT!\Library\bin;!PATH!
