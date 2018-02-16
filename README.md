@@ -8,103 +8,120 @@ This branch of Caffe ports the framework to Windows.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/ew7cl2k1qfsnyql4/branch/windows?svg=true)](https://ci.appveyor.com/project/BVLC/caffe/branch/windows) AppVeyor (Windows build)
 
-## Prebuilt binaries
-
-Prebuilt binaries can be downloaded from the latest CI build on appveyor for the following configurations:
-
-- Visual Studio 2015, CPU only, Python 3.5: [Caffe Release](https://ci.appveyor.com/api/projects/BVLC/caffe/artifacts/build/caffe.zip?branch=windows&job=Environment%3A%20MSVC_VERSION%3D14%2C%20WITH_NINJA%3D0%2C%20CMAKE_CONFIG%3DRelease%2C%20CMAKE_BUILD_SHARED_LIBS%3D0%2C%20PYTHON_VERSION%3D3%2C%20WITH_CUDA%3D0), ~~[Caffe Debug](https://ci.appveyor.com/api/projects/BVLC/caffe/artifacts/build/caffe.zip?branch=windows&job=Environment%3A%20MSVC_VERSION%3D14%2C%20WITH_NINJA%3D0%2C%20CMAKE_CONFIG%3DDebug%2C%20CMAKE_BUILD_SHARED_LIBS%3D0%2C%20PYTHON_VERSION%3D3%2C%20WITH_CUDA%3D0)~~
-
-- Visual Studio 2015, CUDA 8.0, Python 3.5: [Caffe Release](https://ci.appveyor.com/api/projects/BVLC/caffe/artifacts/build/caffe.zip?branch=windows&job=Environment%3A%20MSVC_VERSION%3D14%2C%20WITH_NINJA%3D1%2C%20CMAKE_CONFIG%3DRelease%2C%20CMAKE_BUILD_SHARED_LIBS%3D0%2C%20PYTHON_VERSION%3D3%2C%20WITH_CUDA%3D1)
-
-- Visual Studio 2015, CPU only, Python 2.7: [Caffe Release](https://ci.appveyor.com/api/projects/BVLC/caffe/artifacts/build/caffe.zip?branch=windows&job=Environment%3A%20MSVC_VERSION%3D14%2C%20WITH_NINJA%3D0%2C%20CMAKE_CONFIG%3DRelease%2C%20CMAKE_BUILD_SHARED_LIBS%3D0%2C%20PYTHON_VERSION%3D2%2C%20WITH_CUDA%3D0), [Caffe Debug](https://ci.appveyor.com/api/projects/BVLC/caffe/artifacts/build/caffe.zip?branch=windows&job=Environment%3A%20MSVC_VERSION%3D14%2C%20WITH_NINJA%3D0%2C%20CMAKE_CONFIG%3DDebug%2C%20CMAKE_BUILD_SHARED_LIBS%3D0%2C%20PYTHON_VERSION%3D2%2C%20WITH_CUDA%3D0)
-
-- Visual Studio 2015,CUDA 8.0, Python 2.7: [Caffe Release](https://ci.appveyor.com/api/projects/BVLC/caffe/artifacts/build/caffe.zip?branch=windows&job=Environment%3A%20MSVC_VERSION%3D14%2C%20WITH_NINJA%3D1%2C%20CMAKE_CONFIG%3DRelease%2C%20CMAKE_BUILD_SHARED_LIBS%3D0%2C%20PYTHON_VERSION%3D2%2C%20WITH_CUDA%3D1)
-
-- Visual Studio 2013, CPU only, Python 2.7: [Caffe Release](https://ci.appveyor.com/api/projects/BVLC/caffe/artifacts/build/caffe.zip?branch=windows&job=Environment%3A%20MSVC_VERSION%3D12%2C%20WITH_NINJA%3D0%2C%20CMAKE_CONFIG%3DRelease%2C%20CMAKE_BUILD_SHARED_LIBS%3D0%2C%20PYTHON_VERSION%3D2%2C%20WITH_CUDA%3D0), [Caffe Debug](https://ci.appveyor.com/api/projects/BVLC/caffe/artifacts/build/caffe.zip?branch=windows&job=Environment%3A%20MSVC_VERSION%3D12%2C%20WITH_NINJA%3D0%2C%20CMAKE_CONFIG%3DDebug%2C%20CMAKE_BUILD_SHARED_LIBS%3D0%2C%20PYTHON_VERSION%3D2%2C%20WITH_CUDA%3D0)
-
-
-## Windows Setup
-
+## Installing Caffe on Windows
 ### Requirements
 
- - Visual Studio 2013 or 2015
-     - Technically only the VS C/C++ compiler is required (cl.exe)
- - [CMake](https://cmake.org/) 3.4 or higher (Visual Studio and [Ninja](https://ninja-build.org/) generators are supported)
+To install Caffe on Windows you need the following:
 
-### Optional Dependencies
+ - Visual Studio 2015 or 2017
+   - Technically only the VS C/C++ compiler is required (cl.exe)
+ - [CMake](https://cmake.org/) 3.8 or higher (Visual Studio and [Ninja](https://ninja-build.org/) generators are supported)
 
- - Python for the pycaffe interface. Anaconda Python 2.7 or 3.5 x64 (or Miniconda)
+ Optional requirements are:
+
+ - Python for the pycaffe interface. Anaconda (or Miniconda) Python 3.6 x64 is supported
  - Matlab for the matcaffe interface.
- - CUDA 7.5 or 8.0 (use CUDA 8 if using Visual Studio 2015)
- - cuDNN v5
+ - CUDA 8.0 (use CUDA 9 if using Visual Studio 2017)
+ - cuDNN
 
- We assume that `cmake.exe` and `python.exe` are on your `PATH`.
+`cmake.exe` and `python.exe` are assumed to be available in your `PATH`.
 
-### Configuring and Building Caffe
+When building with CUDA we recommend to use Visual Studio 2015 since CUDA 9.1 only works with Visual Studio 2017 version 15.1 and 15.2 (not with 15.3 and up).
 
-The fastest method to get started with caffe on Windows is by executing the following commands in a `cmd` prompt (we use `C:\Projects` as a root folder for the remainder of the instructions):
-```cmd
+To install and use Caffe on Windows you can:
+
+1. Use vcpkg to build the Caffe C++/CUDA libraries and tools.
+2. Build from source.
+
+### Building with vcpkg
+
+**WARNING**: This feature is not yet available but should be soon.
+
+If you want to build with Python support you should use the instructions in [Building from source](#building-from-source).
+
+After installing vcpkg execute the following command:
+```Batch
+> vcpkg install caffe[core,cuda,opencv] --triplet x64-windows --featurepackages
+```
+Remove the cuda and/or opencv if you wish to exclude those features from your build. Once this is done you can integrate Caffe in your own C++ project by following the vcpkg [documentation](https://github.com/Microsoft/vcpkg/blob/master/docs/examples/using-sqlite.md). You can also use the `caffe.exe` tool that will be located in your vcpkg install tree (e.g. in `C:\Projects\vcpkg\installed\x64-windows\tools`)
+
+### Building from source
+
+To install Caffe from source you first need to obtain the sources:
+
+```Batch
 C:\Projects> git clone https://github.com/BVLC/caffe.git
 C:\Projects> cd caffe
 C:\Projects\caffe> git checkout windows
-:: Edit any of the options inside build_win.cmd to suit your needs
+```
+
+Then you can use the provided [build_win.cmd](scripts/build_win.cmd) script as follows:
+
+```
 C:\Projects\caffe> scripts\build_win.cmd
 ```
-The `build_win.cmd` script will download the dependencies, create the Visual Studio project files (or the ninja build files) and build the Release configuration. By default all the required DLLs will be copied (or hard linked when possible) next to the consuming binaries. If you wish to disable this option, you can by changing the command line option `-DCOPY_PREREQUISITES=0`. The prebuilt libraries also provide a `prependpath.bat` batch script that can temporarily modify your `PATH` environment variable to make the required DLLs available.
+
+You can customize what gets built by setting some environment variables before calling the script:
+
+```
+REM Customize the build (choose from the options below)
+C:\Projects\caffe> set MSVC_VERSION=15 # Visual Studio 2017
+C:\Projects\caffe> set MSVC_VERSION=14 # Visual Studio 2015
+C:\Projects\caffe> set WITH_CUDA=1 # Build with CUDA
+C:\Projects\caffe> set WITH_CUDA=0 # Build without CUDA
+C:\Projects\caffe> set WITH_NINJA=1 # Build with ninja (faster)
+C:\Projects\caffe> set WITH_NINJA=0 # Build with Visual Studio IDE (you get nice VS solutions)
+C:\Projects\caffe> set CMAKE_BUILD_SHARED_LIBS=0 # Build a static library
+C:\Projects\caffe> set CMAKE_BUILD_SHARED_LIBS=1 # Build a shared library (DLL)
+C:\Projects\caffe> set CMAKE_CONFIG=Release # Release build
+C:\Projects\caffe> set CMAKE_CONFIG=Debug # Debug build
+REM Call the build script
+C:\Projects\caffe> scripts\build_win.cmd
+```
+
+The build script will download prebuilt dependencies that were built using vcpkg. If you wish to build your own version of the libraries you can still use the build script to build Caffe but you need to set the environment variable `VCPKG_DIR` to the root of your vcpkg install. To build Caffe you need to install at least:
+
+```
+C:\Projects\vcpkg> vcpkg install gflags glog boost protobuf hdf5 openblas --triplet x64-windows
+REM optional dependencies are
+C:\Projects\vcpkg> vcpkg install opencv lmdb leveldb python3 --triplet x64-windows
+```
+
+When building from source, all the required DLLs will be copied (or hard linked when possible) next to the consuming binaries. If you wish to disable this option, you can by changing the command line option `-DCOPY_PREREQUISITES=0`.
 
 If you have GCC installed (e.g. through MinGW), then Ninja will detect it before detecting the Visual Studio compiler, causing errors.  In this case you have several options:
 
 - [Pass CMake the path](https://cmake.org/Wiki/CMake_FAQ#How_do_I_use_a_different_compiler.3F) (Set `CMAKE_C_COMPILER=your/path/to/cl.exe` and `CMAKE_CXX_COMPILER=your/path/to/cl.exe`)
 - or Use the Visual Studio Generator by setting `WITH_NINJA` to 0 (This is slower, but may work even if Ninja is failing.)
-- or uninstall your copy of GCC 
+- or uninstall your copy of GCC
 
-The path to cl.exe is usually something like 
+The path to cl.exe is usually something like
 `"C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/bin/your_processor_architecture/cl.exe".`
-If you don't want to install Visual Studio, Microsoft's C/C++ compiler [can be obtained here](http://landinghub.visualstudio.com/visual-cpp-build-tools). 
+If you don't want to install Visual Studio, Microsoft's C/C++ compiler [can be obtained here](http://landinghub.visualstudio.com/visual-cpp-build-tools).
 
-Below is a more complete description of some of the steps involved in building caffe.
+#### Building with cuDNN
 
-### Install the caffe dependencies
+To use cuDNN the easiest way is to copy the content of the `cuda` folder into your CUDA toolkit installation directory. For example if you installed CUDA 8.0 and downloaded cudnn-8.0-windows10-x64-v5.1.zip you should copy the content of the `cuda` directory to `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0`.
 
-By default CMake will download and extract prebuilt dependencies for your compiler and python version. It will create a folder called `libraries` containing all the required dependencies inside your build folder. Alternatively you can build them yourself by following the instructions in the [caffe-builder](https://github.com/willyd/caffe-builder) [README](https://github.com/willyd/caffe-builder/blob/master/README.md).
+#### Building with MKL
 
-### Use cuDNN
+To use MKL instead of OpenBLAS you only need to install MKL and add the CMake command line option `-DBLAS=MKL`.
 
-To use cuDNN the easiest way is to copy the content of the `cuda` folder into your CUDA toolkit installation directory. For example if you installed CUDA 8.0 and downloaded cudnn-8.0-windows10-x64-v5.1.zip you should copy the content of the `cuda` directory to `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0`. Alternatively, you can define the CUDNN_ROOT cache variable to point to where you unpacked the cuDNN files e.g. `C:/Projects/caffe/cudnn-8.0-windows10-x64-v5.1/cuda`. For example the command in [scripts/build_win.cmd](scripts/build_win.cmd) would become:
-```
-cmake -G"!CMAKE_GENERATOR!" ^
-      -DBLAS=Open ^
-      -DCMAKE_BUILD_TYPE:STRING=%CMAKE_CONFIG% ^
-      -DBUILD_SHARED_LIBS:BOOL=%CMAKE_BUILD_SHARED_LIBS% ^
-      -DBUILD_python:BOOL=%BUILD_PYTHON% ^
-      -DBUILD_python_layer:BOOL=%BUILD_PYTHON_LAYER% ^
-      -DBUILD_matlab:BOOL=%BUILD_MATLAB% ^
-      -DCPU_ONLY:BOOL=%CPU_ONLY% ^
-      -DCUDNN_ROOT=C:/Projects/caffe/cudnn-8.0-windows10-x64-v5.1/cuda ^
-      -C "%cd%\libraries\caffe-builder-config.cmake" ^
-      "%~dp0\.."
-```
-
-Alternatively, you can open `cmake-gui.exe` and set the variable from there and click `Generate`.
-
-### Building only for CPU
-
-If CUDA is not installed Caffe will default to a CPU_ONLY build. If you have CUDA installed but want a CPU only build you may use the CMake option `-DCPU_ONLY=1`.
-
-### Using the Python interface
+#### Building the Python interface
 
 The recommended Python distribution is Anaconda or Miniconda. To successfully build the python interface you need to add the following conda channels:
 ```
 conda config --add channels conda-forge
-conda config --add channels willyd
+conda config --add channels defaults
 ```
 and install the following packages:
 ```
-conda install --yes cmake ninja numpy scipy protobuf==3.1.0 six scikit-image pyyaml pydotplus graphviz
+conda install --yes cmake ninja  numpy scipy protobuf==3.5.0 six scikit-image pyyaml pydotplus graphviz
 ```
-If Python is installed the default is to build the python interface and python layers. If you wish to disable the python layers or the python build use the CMake options `-DBUILD_python_layer=0` and `-DBUILD_python=0` respectively. In order to use the python interface you need to either add the `C:\Projects\caffe\python` folder to your python path or copy the `C:\Projects\caffe\python\caffe` folder to your `site_packages` folder.
 
-### Using the MATLAB interface
+If Python is installed the default is to build the python interface and python layers. If you wish to disable the python layers or the python build use the CMake options `-DBUILD_python_layer=0` and `-DBUILD_python=0` respectively. In order to use the python interface you need to either add the `C:\Projects\caffe\python` folder to your python path of copy the `C:\Projects\caffe\python\caffe` folder to your `site_packages` folder AFTER building.
+
+#### Building the MATLAB interface
 
 Follow the above procedure and use `-DBUILD_matlab=ON`. Change your current directory in MATLAB to `C:\Projects\caffe\matlab` and run the following command to run the tests:
 ```
@@ -112,28 +129,13 @@ Follow the above procedure and use `-DBUILD_matlab=ON`. Change your current dire
 ```
 If all tests pass you can test if the classification_demo works as well. First, from `C:\Projects\caffe` run `python scripts\download_model_binary.py models\bvlc_reference_caffenet` to download the pre-trained caffemodel from the model zoo. Then change your MATLAB directory to `C:\Projects\caffe\matlab\demo` and run `classification_demo`.
 
-### Using the Ninja generator
-
-You can choose to use the Ninja generator instead of Visual Studio for faster builds. To do so, change the option `set WITH_NINJA=1` in the `build_win.cmd` script. To install Ninja you can download the executable from github or install it via conda:
-```cmd
-> conda config --add channels conda-forge
-> conda install ninja --yes
-```
-When working with ninja you don't have the Visual Studio solutions as ninja is more akin to make. An alternative is to use [Visual Studio Code](https://code.visualstudio.com) with the CMake extensions and C++ extensions.
-
-### Building a shared library
-
-CMake can be used to build a shared library instead of the default static library. To do so follow the above procedure and use `-DBUILD_SHARED_LIBS=ON`. Please note however, that some tests (more specifically the solver related tests) will fail since both the test executable and caffe library do not share static objects contained in the protobuf library.
-
-### Troubleshooting
+## Troubleshooting
 
 Should you encounter any error please post the output of the above commands by redirecting the output to a file and open a topic on the [caffe-users list](https://groups.google.com/forum/#!forum/caffe-users) mailing list.
 
 ## Known issues
 
 - The `GPUTimer` related test cases always fail on Windows. This seems to be a difference between UNIX and Windows.
-- Shared library (DLL) build will have failing tests.
-- Shared library build only works with the Ninja generator
 
 ## Further Details
 

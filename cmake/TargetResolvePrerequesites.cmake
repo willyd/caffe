@@ -25,8 +25,9 @@ function(caffe_prerequisites_directories VAR)
   get_filename_component(_dir ${HDF5_DIR} DIRECTORY)
   list(APPEND _directories ${_dir}/bin)
   # Add OpenCV to search directories
-  get_filename_component(_dir ${OpenCV_LIB_PATH} DIRECTORY)
-  list(APPEND _directories ${_dir}/bin)
+  foreach(_opencv_lib ${OpenCV_LIBRARIES})
+    list(APPEND _directories $<TARGET_FILE_DIR:${_opencv_lib}>)
+  endforeach()
   if(CUDNN_FOUND AND HAVE_CUDNN)
     # Add OpenCV to search directories
     get_filename_component(_dir ${CUDNN_LIBRARY} DIRECTORY)

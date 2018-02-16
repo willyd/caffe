@@ -7,4 +7,4 @@ if("$BuildDir" -eq "") {
   $BuildDir = "$CaffeRoot\build"
 }
 
-. $BuildDir\tools\caffe.exe train --solver=examples\mnist\lenet_solver.prototxt $args
+. $BuildDir\tools\caffe.exe train --solver="$PSScriptRoot\lenet_solver.prototxt" $args

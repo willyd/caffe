@@ -29,7 +29,7 @@ SET(Open_BLAS_LIB_SEARCH_PATHS
  )
 
 if(MSVC)
-  set(OpenBLAS_LIB_NAMES libopenblas.dll.a)
+  set(OpenBLAS_LIB_NAMES libopenblas.dll.a openblas.lib)
 else()
   set(OpenBLAS_LIB_NAMES openblas)
 endif()

@@ -16,7 +16,7 @@
 #include <utility>  // pair
 #include <vector>
 
-#ifdef CMAKE_WINDOWS_BUILD
+#ifdef _MSC_VER
   #include "caffe/export.hpp"
 #endif
 #include "caffe/util/device_alternate.hpp"

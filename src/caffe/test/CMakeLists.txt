@@ -19,7 +19,11 @@ set(the_target test.testbin)
 set(test_args --gtest_shuffle)
 
 if(HAVE_CUDA)
+  set(__cuda_options ${Caffe_COMPILE_DEFS}
+                     ${Caffe_IMPORT_DEFINITION})
+  add_definitions(${__cuda_options})
   caffe_cuda_compile(test_cuda_objs ${test_cuda})
+  remove_definitions(${__cuda_options})
   list(APPEND test_srcs ${test_cuda_objs} ${test_cuda})
 else()
   list(APPEND test_args --gtest_filter="-*GPU*")

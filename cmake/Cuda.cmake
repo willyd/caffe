@@ -41,7 +41,7 @@ function(caffe_detect_installed_gpus out_variable)
       # breaks in the cache
       string(REGEX MATCH "([1-9].[0-9])" __nvcc_out "${__nvcc_out}")
       string(REPLACE "2.1" "2.1(2.0)" __nvcc_out "${__nvcc_out}")
-      set(CUDA_gpu_detect_output ${__nvcc_out} CACHE INTERNAL "Returned GPU architetures from caffe_detect_gpus tool" FORCE)      
+      set(CUDA_gpu_detect_output ${__nvcc_out} CACHE INTERNAL "Returned GPU architetures from caffe_detect_gpus tool" FORCE)
     endif()
   endif()
 
@@ -113,6 +113,12 @@ function(caffe_select_nvcc_arch_flags out_variable)
   set(__nvcc_flags "")
   set(__nvcc_archs_readable "")
 
+  string(COMPARE GREATER_EQUAL "${CUDA_VERSION}" "9.1" iscudanewerthan91)
+  if(iscudanewerthan91)
+    string(REPLACE "21(20)" "" __cuda_arch_bin "${__cuda_arch_bin}")
+    string(REPLACE "20" "" __cuda_arch_bin "${__cuda_arch_bin}")
+  endif()
+
   # Tell NVCC to add binaries for the specified GPUs
   foreach(__arch ${__cuda_arch_bin})
     if(__arch MATCHES "([0-9]+)\\(([0-9]+)\\)")
@@ -158,6 +164,12 @@ macro(caffe_cuda_compile objlist_variable)
     list(APPEND CUDA_NVCC_FLAGS -Xcompiler -Wno-unused-function)
   endif()
 
+  if(MSVC)
+    foreach(__warning ${MSVC_DISABLED_WARNINGS})
+      list(APPEND CUDA_NVCC_FLAGS -Xcompiler ${__warning})
+    endforeach()
+  endif()
+
   cuda_compile(cuda_objcs ${ARGN})
 
   foreach(var CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_DEBUG)
@@ -180,12 +192,12 @@ function(detect_cuDNN)
             PATHS ${CUDNN_ROOT} $ENV{CUDNN_ROOT} ${CUDA_TOOLKIT_INCLUDE}
             PATH_SUFFIXES include
             DOC "Path to cuDNN include directory." )
-           
+
   unset(_path_suffixes)
   if(MSVC AND ${CMAKE_SIZEOF_VOID_P} EQUAL 8)
     set(_path_suffixes PATH_SUFFIXES lib/x64)
   else()
-    set(_path_suffixes PATH_SUFFIXES lib/Win32)    
+    set(_path_suffixes PATH_SUFFIXES lib/Win32)
   endif()
 
   # dynamic libs have different suffix in mac and linux
@@ -202,7 +214,7 @@ function(detect_cuDNN)
    PATHS ${CUDNN_ROOT} $ENV{CUDNN_ROOT} ${CUDNN_INCLUDE} ${__libpath_hist} ${__libpath_hist}/../lib
    ${_path_suffixes}
    DOC "Path to cuDNN library.")
-  
+
   if(CUDNN_INCLUDE AND CUDNN_LIBRARY)
     set(HAVE_CUDNN  TRUE PARENT_SCOPE)
     set(CUDNN_FOUND TRUE PARENT_SCOPE)

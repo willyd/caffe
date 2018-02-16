@@ -24,6 +24,13 @@ function(caffe_generate_export_configs)
     set(HAVE_CUDA FALSE)
   endif()
 
+  set(PROTOBUF_IMPORTED OFF)
+  foreach(_lib ${PROTOBUF_LIBRARIES})
+    if(TARGET ${_lib})
+      set(PROTOBUF_IMPORTED ON)
+    endif()
+  endforeach()
+
   set(GFLAGS_IMPORTED OFF)
   foreach(_lib ${GFLAGS_LIBRARIES})
     if(TARGET ${_lib})
@@ -77,7 +84,7 @@ function(caffe_generate_export_configs)
   configure_file("cmake/Templates/CaffeConfig.cmake.in" "${PROJECT_BINARY_DIR}/CaffeConfig.cmake" @ONLY)
 
   # Add targets to the build-tree export set
-  export(TARGETS caffe caffeproto FILE "${PROJECT_BINARY_DIR}/CaffeTargets.cmake")
+  export(TARGETS caffe FILE "${PROJECT_BINARY_DIR}/CaffeTargets.cmake")
   export(PACKAGE Caffe)
 
   # ---[ Configure install-tree CaffeConfig.cmake file ]---
