@@ -94,7 +94,7 @@ if(USE_LEVELDB)
 endif()
 
 # ---[ Snappy
-if(USE_LEVELDB)
+if(USE_LEVELDB AND NOT MSVC)
   find_package(Snappy REQUIRED)
   list(APPEND Caffe_INCLUDE_DIRS PRIVATE ${Snappy_INCLUDE_DIR})
   list(APPEND Caffe_LINKER_LIBS PRIVATE ${Snappy_LIBRARIES})

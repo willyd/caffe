@@ -41,7 +41,7 @@ if %WITH_NINJA%==1 (
 )
 
 REM When the path to dependencies is changed also change it in windows_download_dependencies.cmake
-if NOT DEFINED VCPKG_DIR set VCPKG_DIR=%USERPROFILE%\.caffe\dependencies\vcpkg-export-20180213-222527
+if NOT DEFINED VCPKG_DIR set VCPKG_DIR=%USERPROFILE%\.caffe\dependencies\vcpkg-export-20180219-194445
 set VCPKG_TOOLCHAIN=%VCPKG_DIR%\scripts\buildsystems\vcpkg.cmake
 if NOT EXIST "%VCPKG_TOOLCHAIN%" (
     echo calling cmake
@@ -112,7 +112,6 @@ cmake -G"!CMAKE_GENERATOR!" ^
       -DUSE_NCCL:BOOL=!USE_NCCL! ^
       -DCUDA_ARCH_NAME:STRING=%CUDA_ARCH_NAME% ^
       -DUSE_HDF5_SHARED_LIBS=ON ^
-      -DUSE_LEVELDB=OFF ^
       "%~dp0\.."
 
 if ERRORLEVEL 1 (

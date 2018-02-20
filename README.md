@@ -41,9 +41,9 @@ If you want to build with Python support you should use the instructions in [Bui
 
 After installing vcpkg execute the following command:
 ```Batch
-> vcpkg install caffe[core,cuda,opencv] --triplet x64-windows --featurepackages
+> vcpkg install caffe[core,cuda,opencv,lmdb,leveldb,mkl] --triplet x64-windows --featurepackages
 ```
-Remove the cuda and/or opencv if you wish to exclude those features from your build. Once this is done you can integrate Caffe in your own C++ project by following the vcpkg [documentation](https://github.com/Microsoft/vcpkg/blob/master/docs/examples/using-sqlite.md). You can also use the `caffe.exe` tool that will be located in your vcpkg install tree (e.g. in `C:\Projects\vcpkg\installed\x64-windows\tools`)
+Remove the cuda, opencv, lmdb, etc if you wish to exclude those features from your build. Once this is done you can integrate Caffe in your own C++ project by following the vcpkg [documentation](https://github.com/Microsoft/vcpkg/blob/master/docs/examples/using-sqlite.md). You can also use the `caffe.exe` tool that will be located in your vcpkg install tree (e.g. in `C:\Projects\vcpkg\installed\x64-windows\tools`)
 
 ### Building from source
 

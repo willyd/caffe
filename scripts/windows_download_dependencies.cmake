@@ -1,8 +1,8 @@
 # When the path to dependencies is changed also change it in build_win.cmd
 set(DEPENDENCIES_FILE_EXT .7z)
-set(DEPENDENCIES_NAME vcpkg-export-20180213-222527)
-set(DEPENDENCIES_URL https://github.com/willyd/vcpkg/releases/download/v1.2/${DEPENDENCIES_NAME}.7z)
-set(DEPENDENCIES_MD5 f9730b56c4581c6a388f354836bce232)
+set(DEPENDENCIES_NAME vcpkg-export-20180219-194445)
+set(DEPENDENCIES_URL https://github.com/willyd/vcpkg/releases/download/v1.3/${DEPENDENCIES_NAME}.7z)
+set(DEPENDENCIES_MD5 f2a3ab8b5b929f6d32cc540434a38e00)
 
 message(STATUS "Downloading caffe dependencies")
 file(TO_CMAKE_PATH $ENV{USERPROFILE} USERPROFILE_DIR)
