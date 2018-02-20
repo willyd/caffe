@@ -38,6 +38,14 @@ environment:
       PYTHON_VERSION: 3
       WITH_CUDA: 0
 
+    - MSVC_VERSION: 15
+      WITH_NINJA: 0
+      CMAKE_CONFIG: Debug
+      CMAKE_BUILD_SHARED_LIBS: 1
+      PYTHON_VERSION: 3
+      WITH_CUDA: 0
+      RUN_TESTS: 0
+
 build_script:
 - cmd: >-
     call scripts\build_win.cmd

@@ -152,7 +152,7 @@ if !RUN_TESTS! EQU 1 (
             REM the _caffe module is _caffe-d is debug
             if "%CMAKE_CONFIG%"=="Release" (
                 REM Run the python tests
-                cmake --build . --target pytest
+                cmake --build . --target pytest --config %CMAKE_CONFIG%
 
                 if ERRORLEVEL 1 (
                     echo ERROR: Python tests failed
