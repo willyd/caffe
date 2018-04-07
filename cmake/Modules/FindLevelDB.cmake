@@ -24,12 +24,12 @@ if(MSVC)
                PATHS ${LevelDB_ROOT_DIR}/debug/lib
                DOC "Path to leveldb debug library."
                NO_DEFAULT_PATH)
+else()
+  # Look for the library.
+  find_library(LevelDB_LIBRARY NAMES leveldb
+              PATHS /usr/lib $ENV{LEVELDB_ROOT}/lib
+              DOC "Path to leveldb library." )
 endif()
-
-# Look for the library.
-find_library(LevelDB_LIBRARY NAMES leveldb
-             PATHS /usr/lib $ENV{LEVELDB_ROOT}/lib
-             DOC "Path to leveldb library." )
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(LevelDB DEFAULT_MSG LevelDB_INCLUDE LevelDB_LIBRARY)
@@ -38,7 +38,7 @@ if(LEVELDB_FOUND)
   message(STATUS "Found LevelDB (include: ${LevelDB_INCLUDE}, library: ${LevelDB_LIBRARY})")
   set(LevelDB_INCLUDES ${LevelDB_INCLUDE})
   if(LevelDB_LIBRARY_DEBUG)
-    set(LevelDB_LIBRARIES optimized ${LevelDB_LIBRARY} debug ${LevelDB_LIBRARY_DEBUG})
+    set(LevelDB_LIBRARIES $<$<NOT:$<CONFIG:DEBUG>>:${LevelDB_LIBRARY}> $<$<CONFIG:DEBUG>:${LevelDB_LIBRARY_DEBUG}>)
   else()
     set(LevelDB_LIBRARIES ${LevelDB_LIBRARY})
   endif()

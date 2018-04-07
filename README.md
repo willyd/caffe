@@ -15,7 +15,7 @@ To install Caffe on Windows you need the following:
 
  - Visual Studio 2015 or 2017
    - Technically only the VS C/C++ compiler is required (cl.exe)
- - [CMake](https://cmake.org/) 3.8 or higher (Visual Studio and [Ninja](https://ninja-build.org/) generators are supported)
+ - [CMake](https://cmake.org/) 3.11 or higher (Visual Studio and [Ninja](https://ninja-build.org/) generators are supported)
 
  Optional requirements are:
 
@@ -120,6 +120,8 @@ conda install --yes cmake ninja  numpy scipy protobuf==3.5.0 six scikit-image py
 ```
 
 If Python is installed the default is to build the python interface and python layers. If you wish to disable the python layers or the python build use the CMake options `-DBUILD_python_layer=0` and `-DBUILD_python=0` respectively. In order to use the python interface you need to either add the `C:\Projects\caffe\python` folder to your python path of copy the `C:\Projects\caffe\python\caffe` folder to your `site_packages` folder AFTER building.
+
+When using the Python interface you should make sure that your conda packages such hdf5, protobuf, etc. versions are compatible with the vcpkg dependencies you used.
 
 #### Building the MATLAB interface
 
