@@ -128,7 +128,7 @@ add_subdirectory(docs)
 add_custom_target(lint COMMAND ${CMAKE_COMMAND} -DPYTHON_EXECUTABLE=${PYTHON_EXECUTABLE} -P ${PROJECT_SOURCE_DIR}/cmake/lint.cmake)
 
 # ---[ pytest target
-if(BUILD_python)
+if(BUILD_python AND HAVE_PYTHON)
   if(UNIX)
     set(python_executable python${python_version})
   else()

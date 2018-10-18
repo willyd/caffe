@@ -54,7 +54,7 @@ include(cmake/ProtoBuf.cmake)
 # ---[ HDF5
 if(MSVC)
   # Find HDF5 using it's hdf5-config.cmake file with MSVC
-  find_package(HDF5 1.10 COMPONENTS C HL REQUIRED NO_MODULE)
+  find_package(HDF5 COMPONENTS C HL REQUIRED NO_MODULE)
   if(USE_HDF5_SHARED_LIBS)
     set(_hdf5_linkage shared)
   else()
