@@ -1,0 +1,96 @@
+package:
+  name: caffe
+  version: "1.0"
+
+source:
+   git_url: https://github.com/willyd/caffe.git
+   git_rev: "windows"
+
+requirements:
+  build:
+    - cmake
+    - ninja # [win]
+    - curl # [win]
+    - {{ compiler('c') }} # [win]
+    - python
+    - numpy 1.15.*
+    - setuptools
+    - mkl >=2018
+    - mkl-include
+    - mkl-devel
+    - boost
+    - py-boost
+    - protobuf =3.5.2
+    - libprotobuf =3.5.2
+    - glog
+    - gflags
+    - libopencv
+    - hdf5 >=1.8,<1.9
+    - lmdb
+
+  host:
+    - python
+    - numpy 1.15.*
+    - setuptools
+    - mkl >=2018
+    - mkl-include
+    - mkl-devel
+    - boost
+    - py-boost
+    - protobuf =3.5.2
+    - libprotobuf =3.5.2
+    - glog
+    - gflags
+    - libopencv
+    - hdf5 >=1.8,<1.9
+    - lmdb
+
+
+  run:
+    - python
+    - numpy >=1.15
+    - mkl >=2018
+    #- cudatoolkit =9
+    - boost
+    - py-boost
+    - protobuf =3.5.2
+    - libprotobuf =3.5.2
+    - glog
+    - gflags
+    - libopencv
+    - hdf5 >=1.8,<1.9
+    - lmdb
+    - scikit-image
+    - pillow
+    - pydotplus
+    - graphviz
+    - six
+    - pyyaml
+    - python-dateutil
+    - pandas
+    - h5py
+    - cython
+    - scipy
+    - ipython
+    - networkx
+    - matplotlib
+
+
+test:
+  imports:
+    - caffe
+  source_files:
+    - models
+    - examples
+    - python/caffe/test
+  requires:
+    - nose
+  commands:
+    - python -m unittest discover -s ./python/caffe/test
+
+about:
+  home: http://caffe.berkeleyvision.org/
+  license: BSD 2-Clause license
+  license_family: BSD
+  license_file: LICENSE
+  summary: Caffe a fast open framework for deep learning.
